@@ -1,7 +1,7 @@
 var routes = [
   {
     method: 'GET',
-    path: '/',
+    path: '/hello',
     config: {
       handler: hello
     }
@@ -14,3 +14,4 @@ function hello(request) {
 };
 
 module.exports = routes;
+
