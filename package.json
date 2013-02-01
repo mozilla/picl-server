@@ -13,7 +13,7 @@
   },
   "license": "MPL 2.0",
   "dependencies": {
-    "hapi": "0.11.3",
+    "hapi": "0.12.0",
     "awsbox": "0.3.5"
   },
   "devDependencies": {
