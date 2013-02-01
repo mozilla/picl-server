@@ -1,15 +1,15 @@
 {
-  "name": "myfx-server",
+  "name": "picl-server",
   "version": "0.0.0",
   "description": "common server bits for myfirefox",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=test ./node_modules/.bin/mocha -R spec --recursive --timeout 4000",
+    "test": "NODE_ENV=test ./node_modules/.bin/mocha -R spec --recursive --timeout 4000 --ignore-leaks",
     "start": "node index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/mozilla/myfx-server.git"
+    "url": "git://github.com/mozilla/picl-server.git"
   },
   "license": "MPL 2.0",
   "dependencies": {
