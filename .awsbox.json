@@ -1,5 +1,8 @@
 {
   "processes": [
     "index.js"
-  ]
+  ],
+  "env": {
+    "CONFIG_FILES": "$HOME/code/config/aws.json,$HOME/config.json"
+  }
 }
