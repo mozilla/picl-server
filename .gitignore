@@ -1,1 +1,4 @@
 /node_modules
+/loadtest/*.pyc
+/loadtest/report
+/loadtest/loadtest.*
