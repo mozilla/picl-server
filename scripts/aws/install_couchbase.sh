@@ -16,5 +16,5 @@ BUCKET=picl
 
 /opt/couchbase/bin/couchbase-cli bucket-create -c 127.0.0.1:8091   --bucket=$BUCKET   --bucket-type=couchbase   --bucket-ramsize=1024   --bucket-replica=0   -u Administrator -p $PASS
 
-echo {\"kvstore\": {\"password\":\"${PASS}\", \"bucket\":\"${BUCKET}\"}} > kvstore.json
+echo {\"couchbase\": {\"password\":\"${PASS}\", \"bucket\":\"${BUCKET}\"}} > kvstore.json
 sudo mv kvstore.json /home/app/kvstore.json

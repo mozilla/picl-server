@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/.bin/mocha -R spec --recursive --timeout 4000 --ignore-leaks",
-    "start": "node index.js",
+    "start": "NODE_ENV=local node index.js",
     "loadtest": "node loadtest/run.js"
   },
   "repository": {
