@@ -3,6 +3,6 @@
     "index.js"
   ],
   "env": {
-    "CONFIG_FILES": "$HOME/code/config/aws.json,$HOME/config.json"
+    "CONFIG_FILES": "$HOME/code/config/aws.json,$HOME/kvstore.json,$HOME/config.json"
   }
 }
