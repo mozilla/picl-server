@@ -40,10 +40,38 @@ exports.routes = [
   }
 ];
 
-// First, attempt to update any outdated token with current token and return success
-// Second, if tokens were unknown, validate assertion and check to see if email is known
-// Third, if email is known, return failure (incorrect tokens for user)
-// Fourth, email is new so create account and return success
+/*
+ * Token Authentication implementation for Hapi
+ *
+ * Authentication occurs before each request unless disabled (per route)
+ * Expects the client to provide a valid token in the Authorization header
+ * */
+function authenticate(request, cb) {
+  // attempt to read row with token
+  var token = request.raw.req.headers.Authorization;
+
+  kvstore.connect(config.get('kvstore'), function(err, db) {
+    db.get(token, function(err, doc) {
+      if (err) return cb(err);
+      if (!doc) return cb(Hapi.Error.unauthorized('UnknownToken'));
+
+      cb(null, {
+        id: token,
+        user: doc.value.email
+      });
+    });
+
+  });
+}
+
+/* Update token handler
+ *
+ * First, attempt to update any outdated token with current token and return success
+ * Second, if tokens were unknown, validate assertion and check to see if email is known
+ * Third, if email is known, return failure (incorrect tokens for user)
+ * Fourth, email is new so create account and return success
+ * */
+
 function updateToken(request) {
 
   var currentToken = request.payload.token;
@@ -91,19 +119,4 @@ function updateToken(request) {
 
 }
 
-function authenticate(request, cb) {
-  // attempt to read row with token
-  var token = request.raw.req.headers.Authorization;
-  kvstore.connect(config.get('kvstore'), function(err, db) {
-    db.get(token, function(err, doc) {
-      if (err) return cb(err);
-      if (!doc) return cb('UnknownToken');
 
-      cb(null, {
-        id: token,
-        user: token
-      });
-    });
-
-  });
-}
