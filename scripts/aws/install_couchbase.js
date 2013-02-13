@@ -5,9 +5,10 @@ var path = require('path');
 var child_process = require('child_process');
 
 function uploadScript (host, cb) {
-  var args = [ path.join(__dirname, 'install_couchbase.sh'),
+  var args = ['-o', 'StrictHostKeyChecking=no',
+              path.join(__dirname, 'install_couchbase.sh'),
               'ec2-user@' + host + ':install_couchbase.sh' ];
-              console.log(args);
+
   var p = child_process.spawn('scp', args, {'stdio': 'inherit'});
 
   p.on('exit', function(code, signal) {
