@@ -37,6 +37,27 @@ exports.routes = [
         }
       }
     }
+  },
+  {
+    method: 'DELETE',
+    path: '/account',
+    handler: deleteAccount,
+    config: {
+      auth: {
+        mode: 'none'
+      },
+      description: 'Delete the account associated with the assertion',
+      validate: {
+        schema: {
+          assertion: Hapi.Types.String().required()
+        }
+      },
+      response: {
+        schema: {
+          success: Hapi.Types.Boolean().required()
+        }
+      }
+    }
   }
 ];
 
@@ -86,6 +107,9 @@ function updateToken(request) {
       // tokens were unknown, check if the email from the assertion is known
       if (err) {
 
+        // assume audience is the current datatype server
+        var audience = request.server.settings.uri;
+
         // verify the assertion on a hosted verifier
         verify(request.payload.assertion, audience, VERIFIER_URL,
           function(err, result) {
@@ -114,9 +138,37 @@ function updateToken(request) {
     });
   });
 
-  // assume audience is the current datatype server
-  var audience = request.server.settings.uri;
-
 }
 
 
+/* Delete account handler
+ *
+ * A valid assertion for an email address is enough
+ * to delete all data associated with that email address
+ * */
+function deleteAccount(request) {
+  var assertion = request.payload.assertion;
+
+  // assume audience is the current datatype server
+  var audience = request.server.settings.uri;
+
+  kvstore.connect(config.get('kvstore'), function(err, db) {
+    var account = accounts(db);
+
+    verify(request.payload.assertion, audience, VERIFIER_URL,
+      function(err, result) {
+        if (err) {
+          console.log('err', err);
+          request.reply(Hapi.Error.badRequest(err));
+        } else {
+          account.delete(result.email, function(err, result) {
+            if (err) {
+              request.reply(Hapi.Error.badRequest(err));
+            } else {
+              request.reply({ success: true });
+            }
+          });
+        }
+      });
+  });
+}

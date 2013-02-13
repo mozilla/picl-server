@@ -66,5 +66,25 @@ describe('auth', function() {
       done();
     });
   });
+
+  it('deletes the account', function(done) {
+    makeRequest('DELETE', '/account', {
+      payload: { assertion: TEST_ASSERTION }
+    }, function(res) {
+      assert.equal(res.statusCode, 200);
+      assert.deepEqual(res.result, { success: true });
+      done();
+    });
+  });
+
+  it('creates a new account with a new token', function(done) {
+    makeRequest('PUT', '/update_token', {
+      payload: { assertion: TEST_ASSERTION, token: 'new token' }
+    }, function(res) {
+      assert.equal(res.statusCode, 200);
+      assert.deepEqual(res.result, { success: true, email: TEST_EMAIL });
+      done();
+    });
+  });
 });
 
