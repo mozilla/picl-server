@@ -1,3 +1,4 @@
+var heartbeat = require('./heartbeat.js');
 var auth = require('./token-auth.js');
 var blob = require('./blob.js');
 
@@ -14,6 +15,7 @@ var routes = [
     }
   ]
   .concat(
+    heartbeat.routes,
     auth.routes,
     blob.routes
   );
