@@ -61,7 +61,6 @@ describe('blob', function() {
     makeRequest('GET', '/blob', {
       headers: { Authorization: 'bad' }
     }, function(res) {
-      console.log(res);
       assert.equal(res.statusCode, 401);
       //assert.deepEqual(res.result, { success: true, data: 'my awesome data', casid: 2 });
       done();
