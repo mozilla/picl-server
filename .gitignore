@@ -2,3 +2,4 @@
 /loadtest/*.pyc
 /loadtest/report
 /loadtest/loadtest.*
+*.swp
