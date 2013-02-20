@@ -1,6 +1,8 @@
-var Hapi = require('hapi');
-var config = require('../lib/config.js');
-var kvstore = require('../lib/kvstore.js');
+const Hapi = require('hapi');
+const config = require('../lib/config.js');
+const kvstore = require('../lib/kvstore.js');
+
+const kv = kvstore.connect();
 
 // Example of a simple blob data type
 
@@ -45,16 +47,14 @@ function put(request) {
   // The authentication module will set the session id
   var id = request.session.id;
 
-  kvstore.connect(config.get('kvstore'), function(err, db) {
-    var data = blob(db, id);
+  var data = blob(id);
 
-    data.write(request.payload.data, request.payload.casid || 0, function(err) {
-      if (err) {
-        request.reply(Hapi.Error.badRequest(err));
-      } else {
-        request.reply({ success: true });
-      }
-    });
+  data.write(request.payload.data, request.payload.casid || 0, function(err) {
+    if (err) {
+      request.reply(Hapi.Error.badRequest(err));
+    } else {
+      request.reply({ success: true });
+    }
   });
 }
 
@@ -62,33 +62,31 @@ function get(request) {
   // The authentication module will set the session id
   var id = request.session.id;
 
-  kvstore.connect(config.get('kvstore'), function(err, db) {
-    var data = blob(db, id);
+  var data = blob(id);
 
-    data.read(function(err, result) {
-      if (err) {
-        request.reply(Hapi.Error.badRequest(err));
-      } else if (!result) {
-        request.reply(Hapi.Error.badRequest('UnknownToken'));
-      } else {
-        request.reply({ success: true, data: result.value.data, casid: result.casid });
-      }
-    });
+  data.read(function(err, result) {
+    if (err) {
+      request.reply(Hapi.Error.badRequest(err));
+    } else if (!result) {
+      request.reply(Hapi.Error.badRequest('UnknownToken'));
+    } else {
+      request.reply({ success: true, data: result.value.data, casid: result.casid });
+    }
   });
 }
 
 // return an object for reading/writing blobs
-function blob(db, id) {
+function blob(id) {
   function read(cb) {
-    db.get(id, cb);
+    kv.get(id, cb);
   }
 
   // naive data write, requires reading first
   function write(payload, casid, cb) {
-    db.get(id, function(err, result) {
+    kv.get(id, function(err, result) {
       result.value.data = payload;
 
-      db.cas(id, result.value, casid, cb);
+      kv.cas(id, result.value, casid, cb);
     });
   }
 
