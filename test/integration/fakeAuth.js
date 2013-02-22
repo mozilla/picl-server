@@ -1,5 +1,4 @@
 var assert = require('assert');
-var config = require('../../lib/config');
 var helpers = require('../helpers');
 
 var server = helpers.server;

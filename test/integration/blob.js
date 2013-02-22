@@ -1,11 +1,9 @@
 var assert = require('assert');
-var config = require('../../lib/config');
 var helpers = require('../helpers');
 
 var server = helpers.server;
 var makeRequest = helpers.makeRequest.bind(server);
 
-var TEST_AUDIENCE = config.get('public_url');
 var TEST_EMAIL = 'blob@example.com';
 var TEST_TOKEN = 'blobtoken';
 

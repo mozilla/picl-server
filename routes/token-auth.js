@@ -124,6 +124,7 @@ function updateToken(request) {
               } else {
                 // otherwise, create a new account
                 account.create(currentToken, result.email, function(err) {
+                  if (err) return request.reply(Hapi.Error.serverError(err));
                   request.reply({ success: true, email: result.email });
                 });
               }
@@ -150,13 +151,13 @@ function deleteAccount(request) {
   // assume audience is the current datatype server
   var audience = request.server.settings.uri;
 
-  fakeVerify(request.payload.email, request.payload.assertion, audience, VERIFIER_URL,
+  fakeVerify(request.payload.email, assertion, audience, VERIFIER_URL,
     function(err, result) {
       if (err) {
         console.log('err', err);
         request.reply(Hapi.Error.badRequest(err));
       } else {
-        account.delete(result.email, function(err, result) {
+        account.delete(result.email, function(err) {
           if (err) {
             request.reply(Hapi.Error.badRequest(err));
           } else {

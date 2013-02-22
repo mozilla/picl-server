@@ -31,8 +31,9 @@ exports.getUser = function(audience, cb) {
     var result = '';
     res.on('data', function(chunk) { result += chunk; });
     res.on('end', function() {
+      var data;
       try {
-        var data = JSON.parse(result);
+        data = JSON.parse(result);
       } catch (e) {
         return cb(e);
       }
