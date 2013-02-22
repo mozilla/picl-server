@@ -16,11 +16,12 @@
  */
 
 
-var fs = require('fs');
-var path = require('path');
-var async = require('async');
-var child_process = require('child_process');
-var couchbaseInstaller = require('../scripts/aws/install_couchbase.js');
+const fs = require('fs');
+const path = require('path');
+const async = require('async');
+const assert = require('assert');
+const child_process = require('child_process');
+const couchbaseInstaller = require('../scripts/aws/install_couchbase.js');
 
 // The SHA1 of the current git commit is used throughout for naming purposes.
 var currentCommit = null;
@@ -42,7 +43,7 @@ async.waterfall([
 // Find the SHA1 of the current git commit.
 //
 function(cb) {
-  child_process.exec('git log --pretty=%h -1', function(err, stdout, stderr) {
+  child_process.exec('git log --pretty=%h -1', function(err, stdout) {
     currentCommit = stdout.trim();
     if (!currentCommit || currentCommit.length !== 7) cb(err);
     else {
@@ -63,10 +64,10 @@ function(cb) {
   // We capture stdout trough a pipe, but also buffer it in
   // memory so that we can grab info out of it.
   var p = child_process.spawn('awsbox', ['create', '-n', serverName, '-t', 'm1.large'],
-                              {'stdio': [0, 'pipe', 2]})
+                              {'stdio': [0, 'pipe', 2]});
   p.stdout.on('data', function(d) {
     process.stdout.write(d);
-    output += d
+    output += d;
   });
   p.on('exit', function(code, signal) {
     var err = code || signal;
@@ -102,7 +103,7 @@ function(cb) {
 //
 function(cb) {
   console.log('Launching awsbox for client');
-  serverName = testName + '-client';
+  var serverName = testName + '-client';
   var output = '';
   // Spawn awsbox as a sub-process.
   // We capture stdout trough a pipe, but also buffer it in
@@ -111,7 +112,7 @@ function(cb) {
                               {'stdio': [0, 'pipe', 2]});
   p.stdout.on('data', function(d) {
     process.stdout.write(d);
-    output += d
+    output += d;
   });
   p.on('exit', function(code, signal) {
     var err = code || signal;
@@ -166,7 +167,7 @@ function(cb) {
     function(cb) {
       var rsync_args = ['-e', 'ssh -o StrictHostKeyChecking=no', '-avzr',
                         'app@'+clientDNSName+':code/loadtest/report/',
-                        path.join(__dirname, 'report')]
+                        path.join(__dirname, 'report')];
       var p = child_process.spawn('rsync', rsync_args, {'stdio': 'inherit'});
       p.on('exit', function(code, signal) {
         console.log('SUCCESS!');
@@ -183,7 +184,7 @@ function(cb) {
 // Cleanup and error handler.
 // If anything goes wrong, control jumps straight to this callback.
 //
-], function(err, result) {
+], function(err) {
   console.log("cleaning up...");
   async.series([
     // Tear down the client VM.
@@ -204,6 +205,8 @@ function(cb) {
       } else {
         process.exit(0);
       }
+      assert.fail("control shouldn't reach here; just keeping jshint happy");
+      cb(); // control will not reach here, but it keeps the 
     }
   ]);
 });
