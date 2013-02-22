@@ -74,17 +74,26 @@ exports.routes = [
  * */
 function authenticate(request, cb) {
   // attempt to read row with token
-  var token = request.raw.req.headers.Authorization;
+  var token = request.raw.req.headers.authorization;
 
-  kv.get(token, function(err, doc) {
-    if (err) return cb(err);
-    if (!doc) return cb(Hapi.Error.unauthorized('UnknownToken'));
+  // For the NULL security protocol, the token is the userid.
+  // There's no checking or lookup, you just have to provide a token.
+  if (!token) return cb(Hapi.Error.unauthorized('NoToken'));
 
-    cb(null, {
-      id: token,
-      user: doc.value.email
-    });
+  cb(null, { 
+    id: token,
+    user: token
   });
+
+  //kv.get(token, function(err, doc) {
+  //  if (err) return cb(err);
+  //  if (!doc) return cb(Hapi.Error.unauthorized('UnknownToken'));
+  //
+  //  cb(null, {
+  //    id: token,
+  //    user: doc.value.email
+  //  });
+  //});
 }
 
 /* Update Token handler
