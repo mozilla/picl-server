@@ -23,6 +23,7 @@
     "couchbase": "0.0.11"
   },
   "devDependencies": {
-    "mocha": "1.8.1"
+    "mocha": "1.8.1",
+    "jshint": "0.9.1"
   }
 }

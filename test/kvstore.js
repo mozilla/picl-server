@@ -19,6 +19,7 @@ describe('kvstore', function () {
   it('supports atomic check-and-set', function (done) {
     var db = kvstore.connect(config.get('kvstore'));
     db.set("test-key", "VALUE", function(err) {
+      assert.equal(err, null);
       db.get("test-key", function(err, info) {
         assert.equal(info.value, "VALUE");
         db.cas("test-key", "OTHER-VALUE-ONE", info.casid, function(err) {
