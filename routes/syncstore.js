@@ -91,7 +91,7 @@ function getCollections(request) {
   var userid = request.params.userid;
 
   // XXX TODO: refactor this into a pre or helper or some such thing.
-  var if_ver = request.raw.req.headers['X-If-Modified-Since-Version'];
+  var if_ver = request.raw.req.headers['x-if-modified-since-version'];
   if (if_ver) {
     if_ver = parseInt(if_ver, 10);
   }
@@ -132,7 +132,7 @@ function getItems(request) {
     return request.reply(Hapi.Error.unauthorized('WrongUserid'));
   }
 
-  var if_ver = request.raw.req.headers['X-If-Modified-Since-Version'];
+  var if_ver = request.raw.req.headers['x-if-modified-since-version'];
   if (if_ver) {
     if_ver = parseInt(if_ver, 10);
   }
@@ -200,7 +200,7 @@ function setItems(request) {
   var userid = request.params.userid;
   var collection = request.params.collection;
 
-  var if_ver = request.raw.req.headers['X-If-Unmodified-Since-Version'];
+  var if_ver = request.raw.req.headers['x-if-unmodified-since-version'];
   if (if_ver) {
     if_ver = parseInt(if_ver, 10);
   }

@@ -74,7 +74,7 @@ exports.routes = [
  * */
 function authenticate(request, cb) {
   // attempt to read row with token
-  var token = request.raw.req.headers.Authorization;
+  var token = request.raw.req.headers.authorization;
 
   // For the NULL security protocol, the token is the userid.
   // There's no checking or lookup, you just have to provide a token.

@@ -12,11 +12,20 @@ exports.makeRequest = function (method, path, options, callback) {
     return callback(res);
   };
 
+  // nodejs lowercases headers, so simulate that behaviour here.
+  var rawHeaders = options.headers || {};
+  var headers = {};
+  for (var key in rawHeaders) {
+    if(rawHeaders.hasOwnProperty(key)) {
+      headers[key.toLowerCase()] = rawHeaders[key];
+    }
+  }
+
   this.inject({
     method: method,
     url: path,
     payload: JSON.stringify(options.payload),
-    headers: options.headers
+    headers: headers
   }, next);
 };
 
