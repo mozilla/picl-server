@@ -1,6 +1,7 @@
 var heartbeat = require('./heartbeat.js');
 var auth = require('./token-auth.js');
 var blob = require('./blob.js');
+var syncstore = require('./syncstore.js');
 
 var routes = [
     {
@@ -17,7 +18,8 @@ var routes = [
   .concat(
     heartbeat.routes,
     auth.routes,
-    blob.routes
+    blob.routes,
+    syncstore.routes
   );
 
 // Define the route

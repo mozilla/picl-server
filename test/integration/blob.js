@@ -41,13 +41,17 @@ describe('blob', function() {
     });
   });
 
-  it('should fail on bad Authorization header', function(done) {
-    makeRequest('GET', '/blob', {
-      headers: { Authorization: 'bad' }
-    }, function(res) {
-      assert.equal(res.statusCode, 401);
-      done();
-    });
-  });
+  // This test doesn't make sense under the NULL security model, since
+  // there's not such thing as a "bad token".
+  // XXX TODO: re-enable this as security model grows.
+  //
+  //it('should fail on bad Authorization header', function(done) {
+  //  makeRequest('GET', '/blob', {
+  //    headers: { Authorization: 'bad' }
+  //  }, function(res) {
+  //    assert.equal(res.statusCode, 401);
+  //    done();
+  //  });
+  //});
 });
 
