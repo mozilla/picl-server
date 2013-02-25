@@ -101,7 +101,7 @@ function getCollections(request) {
   }
 
   store.getCollections(userid, function(err, info) {
-    if (err) return request.reply(Hapi.Error.serverError(err));
+    if (err) return request.reply(Hapi.Error.internal(err));
     if (typeof if_ver !== 'undefined') {
       if (info.version <= if_ver) {
         // XXX TODO: figure out the proper hapi way to do this
@@ -134,7 +134,7 @@ function getItems(request) {
   }
 
   store.getItems(userid, collection, function(err, res) {
-    if (err) return request.reply(Hapi.Error.serverError(err));
+    if (err) return request.reply(Hapi.Error.internal(err));
     if (res.version === 0) return request.reply(Hapi.Error.notFound());
 
     // If they sent an If-Modified-Since, we can avoid sending the body.
@@ -230,7 +230,7 @@ function setItems(request) {
           numRetries++;
           return process.nextTick(doSetItems);
         }
-        return request.reply(Hapi.Error.serverError(err));
+        return request.reply(Hapi.Error.internal(err));
       }
       request.reply({ version: res.version });
     });
