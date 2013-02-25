@@ -16,6 +16,7 @@
 const Hapi = require('hapi');
 const config = require('../lib/config.js');
 const syncstore = require('../lib/syncstore.js');
+const prereqs = require('../lib/prereqs.js');
 
 const store = syncstore.connect();
 
@@ -31,6 +32,7 @@ exports.routes = [
     handler: getCollections,
     config: {
       description: 'Get information about all collections',
+      pre: [prereqs.checkUserId],
       // XXX TODO: figure out how to exclude 304 responses from this check,
       //           then re-enable the validation.
       //response: {
@@ -47,6 +49,7 @@ exports.routes = [
     handler: getItems,
     config: {
       description: 'Get items from a collection',
+      pre: [prereqs.checkUserId],
       validate: {
         query: {
           ids: Hapi.Types.String(),
@@ -69,6 +72,7 @@ exports.routes = [
     handler: setItems,
     config: {
       description: 'Store items in a collection',
+      pre: [prereqs.checkUserId],
       payload: 'parse',
       response: {
         schema: {
@@ -96,10 +100,6 @@ function getCollections(request) {
     if_ver = parseInt(if_ver, 10);
   }
 
-  if (userid !== request.session.user) {
-    return request.reply(Hapi.Error.unauthorized('WrongUserid'));
-  }
-
   store.getCollections(userid, function(err, info) {
     if (err) return request.reply(Hapi.Error.serverError(err));
     if (typeof if_ver !== 'undefined') {
@@ -118,7 +118,7 @@ function getCollections(request) {
 
 // Handler function for getting the items in a collection.
 //
-// This fetches the while list of items from the syncstore backend, filters
+// This fetches the whole list of items from the syncstore backend, filters
 // then based on the "ids" and/or "newer" query parameters, and returns the
 // filtered list to the client.
 //
@@ -127,10 +127,6 @@ function getCollections(request) {
 function getItems(request) {
   var userid = request.params.userid;
   var collection = request.params.collection;
-
-  if (userid !== request.session.user) {
-    return request.reply(Hapi.Error.unauthorized('WrongUserid'));
-  }
 
   var if_ver = request.raw.req.headers['x-if-modified-since-version'];
   if (if_ver) {
@@ -203,10 +199,6 @@ function setItems(request) {
   var if_ver = request.raw.req.headers['x-if-unmodified-since-version'];
   if (if_ver) {
     if_ver = parseInt(if_ver, 10);
-  }
-
-  if (userid !== request.session.user) {
-    return request.reply(Hapi.Error.unauthorized('WrongUserid'));
   }
 
   // Convert the incoming list of items into a hash mapping
