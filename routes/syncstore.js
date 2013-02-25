@@ -118,7 +118,7 @@ function getCollections(request) {
 
 // Handler function for getting the items in a collection.
 //
-// This fetches the while list of items from the syncstore backend, filters
+// This fetches the whole list of items from the syncstore backend, filters
 // then based on the "ids" and/or "newer" query parameters, and returns the
 // filtered list to the client.
 //
