@@ -133,7 +133,7 @@ function updateToken(request) {
               } else {
                 // otherwise, create a new account
                 account.create(currentToken, result.email, function(err) {
-                  if (err) return request.reply(Hapi.Error.serverError(err));
+                  if (err) return request.reply(Hapi.Error.internal(err));
                   request.reply({ success: true, email: result.email });
                 });
               }
