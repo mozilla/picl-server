@@ -145,6 +145,12 @@ function getItems(request) {
       }
     }
 
+    // If they sent a 'newer' param that's ahead of the current state
+    // of the server, they're likely doing something wrong.  Error out.
+    if (request.query.newer && request.query.newer > res.version) {
+      return request.reply(Hapi.Error.badRequest('unseen version number'));
+    }
+
     // The list of ids to fetch is given as a comma-separated string.
     // Split it into a proper list if present.
     var targetIds = request.query.ids;
@@ -152,7 +158,7 @@ function getItems(request) {
       targetIds = targetIds.split(',');
     }
 
-    // The store APi alwasy returns all the items.
+    // The store API always returns all the items.
     // Filter them according to the query parameters.
     var items = [];
     for (var id in res.items) {
