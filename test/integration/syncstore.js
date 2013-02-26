@@ -121,6 +121,14 @@ describe('syncstore web api', function() {
     });
   });
 
+  it('sends a last-modified header with GET responses', function(done) {
+    makeRequest('GET', '/storage/col1', function(res) {
+      assert.equal(res.statusCode, 200);
+      assert.equal(res.result.version, res.headers['X-Last-Modified-Version']);
+      done();
+    });
+  });
+
   it('supports 304-Not-Modified for info and collections', function(done) {
     makeRequest('GET', '/info/collections', function(res) {
       assert.equal(res.statusCode, 200);
