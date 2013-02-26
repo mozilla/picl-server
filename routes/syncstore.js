@@ -153,7 +153,7 @@ function getItems(request) {
     // If they sent a 'newer' param that's ahead of the current state
     // of the server, they're likely doing something wrong.  Error out.
     if (request.query.newer && request.query.newer > res.version) {
-      return request.replay(Hapi.Error.badRequest('unseen version number'));
+      return request.reply(Hapi.Error.badRequest('unseen version number'));
     }
 
     // The list of ids to fetch is given as a comma-separated string.

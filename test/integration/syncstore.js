@@ -176,9 +176,10 @@ describe('syncstore web api', function() {
   it('errors if client sends a not-yet-used version number', function(done) {
     makeRequest('GET', '/storage/col1', function(res) {
       assert.equal(res.statusCode, 200);
-      var newer = res.version + 1;
+      var newer = res.result.version + 1;
       makeRequest('GET', '/storage/col1?newer='+newer, function(res) {
         assert.equal(res.statusCode, 400);
+        assert.equal(res.result.message, 'unseen version number');
         done();
       });
     });
