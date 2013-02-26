@@ -89,8 +89,6 @@ exports.routes = [
 //  The syncstore returns the data into the correct format, so all this
 //  really has to do is dump it out to the client.
 //
-// XXX TODO: X-Last-Modified header
-//
 function getCollections(request) {
   var userid = request.params.userid;
 
@@ -101,16 +99,17 @@ function getCollections(request) {
   }
 
   store.getCollections(userid, function(err, info) {
+    var response;
     if (err) return request.reply(Hapi.Error.internal(err));
     if (typeof if_ver !== 'undefined') {
       if (info.version <= if_ver) {
-        // XXX TODO: figure out the proper hapi way to do this
-        var response = new Hapi.Response.Raw(request).code(304);
-        return response.begin(function() {
-          request.reply(response);
-        });
+        response = new Hapi.Response.Raw(request).code(304);
+        return request.reply(response);
       }
     }
+
+    response = new Hapi.Response.Obj(info);
+    response.header('X-Last-Modified-Version', info.version);
     request.reply(info);
   });
 }
@@ -122,8 +121,6 @@ function getCollections(request) {
 // then based on the "ids" and/or "newer" query parameters, and returns the
 // filtered list to the client.
 //
-// XXX TODO: X-Last-Modified header
-//
 function getItems(request) {
   var userid = request.params.userid;
   var collection = request.params.collection;
@@ -134,6 +131,7 @@ function getItems(request) {
   }
 
   store.getItems(userid, collection, function(err, res) {
+    var response;
     if (err) return request.reply(Hapi.Error.internal(err));
     if (res.version === 0) return request.reply(Hapi.Error.notFound());
 
@@ -142,11 +140,8 @@ function getItems(request) {
     // avoid loading the items at all.
     if (typeof if_ver !== 'undefined') {
       if (res.version <= if_ver) {
-        // XXX TODO: figure out the proper hapi way to do this
-        var response = new Hapi.Response.Raw(request).code(304);
-        return response.begin(function() {
-          request.reply(response);
-        });
+        response = new Hapi.Response.Raw(request).code(304);
+        return request.reply(response);
       }
     }
 
@@ -176,10 +171,9 @@ function getItems(request) {
       items.push(item);
     }
 
-    request.reply({
-      version: res.version,
-      items: items
-    });
+    response = new Hapi.Response.Obj({ version: res.version, items: items });
+    response.header('X-Last-Modified-Version', res.version);
+    return request.reply(response);
   });
 }
 
@@ -190,7 +184,6 @@ function getItems(request) {
 // to intercept its various error conditions and respond appropriately.
 //
 // XXX TODO: validation of BSO fields
-// XXX TODO: X-Last-Modified header
 //
 function setItems(request) {
   var userid = request.params.userid;
@@ -222,9 +215,11 @@ function setItems(request) {
   var numRetries = 0;
   function doSetItems() {
     store.setItems(userid, collection, items, if_ver, function(err, res) {
+      var response;
       if (err) {
         if (err === 'syncstore.versionMismatch') {
-          return request.reply(new Hapi.Error(412, 'Precondition Failed'));
+          response = new Hapi.Error(412, 'Precondition Failed');
+          return request.reply(response);
         }
         if (err === 'syncstore.writeConflict' && numRetries < 10) {
           numRetries++;
@@ -232,7 +227,10 @@ function setItems(request) {
         }
         return request.reply(Hapi.Error.internal(err));
       }
-      request.reply({ version: res.version });
+
+      response = new Hapi.Response.Obj({ version: res.version });
+      response.header('X-Last-Modified-Version', res.version);
+      return request.reply(response);
     });
   }
   doSetItems();
