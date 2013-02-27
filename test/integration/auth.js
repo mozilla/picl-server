@@ -8,8 +8,9 @@ var makeRequest = helpers.bindMakeRequest(server);
 var TEST_AUDIENCE = config.get('public_url');
 var TEST_EMAIL;
 var TEST_ASSERTION;
-var TEST_TOKEN = 'foobar';
-var TEST_NEW_TOKEN = 'shabushabu';
+var TEST_TOKEN = helpers.uniqueID();
+var TEST_NEW_TOKEN = helpers.uniqueID();
+var TEST_NEWER_TOKEN = helpers.uniqueID();
 
 describe('get user', function() {
   it('can get user email and assertion', function(done) {
@@ -79,7 +80,7 @@ describe('auth', function() {
 
   it('creates a new account with a new token', function(done) {
     makeRequest('PUT', '/update_token', {
-      payload: { assertion: TEST_ASSERTION, token: 'new token' }
+      payload: { assertion: TEST_ASSERTION, token: TEST_NEWER_TOKEN }
     }, function(res) {
       assert.equal(res.statusCode, 200);
       assert.deepEqual(res.result, { success: true, email: TEST_EMAIL });

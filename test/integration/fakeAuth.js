@@ -4,9 +4,10 @@ var helpers = require('../helpers');
 var server = helpers.server;
 var makeRequest = helpers.bindMakeRequest(server);
 
-var TEST_EMAIL = 'foo@example.com';
-var TEST_TOKEN = 'fake';
-var TEST_NEW_TOKEN = 'fakenew';
+var TEST_EMAIL = helpers.uniqueID() + '@example.com';
+var TEST_TOKEN = helpers.uniqueID();
+var TEST_NEW_TOKEN = helpers.uniqueID();
+var TEST_NEWER_TOKEN = helpers.uniqueID();
 
 describe('fake auth', function() {
   it('creates a new account', function(done) {
@@ -61,7 +62,7 @@ describe('fake auth', function() {
 
   it('creates a new account with a new token', function(done) {
     makeRequest('PUT', '/update_token', {
-      payload: { email: TEST_EMAIL, token: 'fake new token' }
+      payload: { email: TEST_EMAIL, token: TEST_NEWER_TOKEN }
     }, function(res) {
       assert.equal(res.statusCode, 200);
       assert.deepEqual(res.result, { success: true, email: TEST_EMAIL });

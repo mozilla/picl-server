@@ -4,8 +4,8 @@ var helpers = require('../helpers');
 var server = helpers.server;
 var makeRequest = helpers.bindMakeRequest(server);
 
-var TEST_EMAIL = 'blob@example.com';
-var TEST_TOKEN = 'blobtoken';
+var TEST_EMAIL = helpers.uniqueID() + '@example.com';
+var TEST_TOKEN = helpers.uniqueID();
 
 describe('set up account', function() {
   it('creates a new account', function(done) {

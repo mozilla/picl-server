@@ -1,6 +1,15 @@
 const request = require('request');
+const crypto = require('crypto');
 
 exports.server = require('../server');
+
+
+// Generate a unique, randomly-generated ID.
+// Handy for testing auth tokens and the like..
+//
+exports.uniqueID = function() {
+  return crypto.randomBytes(10).toString('hex');
+};
 
 
 // Construct a request-making function bound either to a local Hapi server
