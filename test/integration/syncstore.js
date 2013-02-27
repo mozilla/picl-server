@@ -193,5 +193,15 @@ describe('syncstore web api', function() {
     });
   });
 
-});
+  it('lets me delete all of my data', function(done) {
+    makeRequest('DELETE', '', function(res) {
+      assert.equal(res.statusCode, 204);
+      makeRequest('GET', '/info/collections', function(res) {
+        assert.equal(res.statusCode, 200);
+        assert.equal(res.result.version, 0);
+        done();
+      });
+    });
+  });
 
+});

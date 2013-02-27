@@ -18,7 +18,7 @@
     "joi": "0.1.1",
     "awsbox": "0.4.1",
     "convict": "0.1.x",
-    "async": "0.1.22"
+    "async": "0.2.5"
   },
   "optionalDependencies": {
     "couchbase": "0.0.11"
