@@ -3,7 +3,7 @@ var config = require('../../lib/config');
 var helpers = require('../helpers');
 
 var server = helpers.server;
-var makeRequest = helpers.makeRequest.bind(server);
+var makeRequest = helpers.bindMakeRequest(server);
 
 var TEST_AUDIENCE = config.get('public_url');
 var TEST_EMAIL;

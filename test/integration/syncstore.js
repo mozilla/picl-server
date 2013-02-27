@@ -7,6 +7,8 @@ const TEST_TOKEN = 'faketoken';
 
 describe('syncstore web api', function() {
 
+  var origMakeRequest = helpers.bindMakeRequest(server);
+
   // Request helper that automatically prepands endpoint to the url
   // and adds authorization headers.
   function makeRequest(method, url, options, cb) {
@@ -21,7 +23,7 @@ describe('syncstore web api', function() {
     if (!options.headers.Authorization) {
       options.headers.Authorization = TEST_TOKEN;
     }
-    return helpers.makeRequest.call(server, method, url, options, cb);
+    return origMakeRequest(method, url, options, cb);
   }
 
   // Map a list of BSOs into an object keyed by item id.
@@ -124,7 +126,7 @@ describe('syncstore web api', function() {
   it('sends a last-modified header with GET responses', function(done) {
     makeRequest('GET', '/storage/col1', function(res) {
       assert.equal(res.statusCode, 200);
-      assert.equal(res.result.version, res.headers['X-Last-Modified-Version']);
+      assert.equal(res.result.version, res.headers['x-last-modified-version']);
       done();
     });
   });

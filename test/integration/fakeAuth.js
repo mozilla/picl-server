@@ -2,7 +2,7 @@ var assert = require('assert');
 var helpers = require('../helpers');
 
 var server = helpers.server;
-var makeRequest = helpers.makeRequest.bind(server);
+var makeRequest = helpers.bindMakeRequest(server);
 
 var TEST_EMAIL = 'foo@example.com';
 var TEST_TOKEN = 'fake';

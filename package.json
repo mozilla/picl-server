@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "mocha": "1.8.1",
-    "jshint": "0.9.1"
+    "jshint": "0.9.1",
+    "request": "2.14.0"
   }
 }

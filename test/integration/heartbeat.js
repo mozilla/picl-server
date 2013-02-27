@@ -1,7 +1,7 @@
 var assert = require('assert');
 var helpers = require('../helpers');
 var server = helpers.server;
-var makeRequest = helpers.makeRequest.bind(server);
+var makeRequest = helpers.bindMakeRequest(server);
 
 describe('heartbeat', function() {
   it('returns ok', function(done) {
