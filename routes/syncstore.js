@@ -32,7 +32,7 @@ exports.routes = [
     handler: getCollections,
     config: {
       description: 'Get information about all collections',
-      pre: [prereqs.checkUserId],
+      pre: [prereqs.checkUserId, prereqs.ifModifiedSinceVersion],
       // XXX TODO: figure out how to exclude 304 responses from this check,
       //           then re-enable the validation.
       //response: {
@@ -49,7 +49,7 @@ exports.routes = [
     handler: getItems,
     config: {
       description: 'Get items from a collection',
-      pre: [prereqs.checkUserId],
+      pre: [prereqs.checkUserId, prereqs.ifModifiedSinceVersion],
       validate: {
         query: {
           ids: Hapi.Types.String(),
@@ -72,7 +72,7 @@ exports.routes = [
     handler: setItems,
     config: {
       description: 'Store items in a collection',
-      pre: [prereqs.checkUserId],
+      pre: [prereqs.checkUserId, prereqs.ifUnmodifiedSinceVersion],
       payload: 'parse',
       response: {
         schema: {
@@ -92,17 +92,12 @@ exports.routes = [
 function getCollections(request) {
   var userid = request.params.userid;
 
-  // XXX TODO: refactor this into a pre or helper or some such thing.
-  var if_ver = request.raw.req.headers['x-if-modified-since-version'];
-  if (if_ver) {
-    if_ver = parseInt(if_ver, 10);
-  }
-
   store.getCollections(userid, function(err, info) {
     var response;
     if (err) return request.reply(Hapi.Error.internal(err));
-    if (typeof if_ver !== 'undefined') {
-      if (info.version <= if_ver) {
+
+    if (request.pre.ifModifiedSinceVersion !== undefined) {
+      if (info.version <= request.pre.ifModifiedSinceVersion) {
         response = new Hapi.Response.Raw(request).code(304);
         return request.reply(response);
       }
@@ -125,11 +120,6 @@ function getItems(request) {
   var userid = request.params.userid;
   var collection = request.params.collection;
 
-  var if_ver = request.raw.req.headers['x-if-modified-since-version'];
-  if (if_ver) {
-    if_ver = parseInt(if_ver, 10);
-  }
-
   store.getItems(userid, collection, function(err, res) {
     var response;
     if (err) return request.reply(Hapi.Error.internal(err));
@@ -138,8 +128,8 @@ function getItems(request) {
     // If they sent an If-Modified-Since, we can avoid sending the body.
     // It would be useful to push this check down into the store API to
     // avoid loading the items at all.
-    if (typeof if_ver !== 'undefined') {
-      if (res.version <= if_ver) {
+    if (request.pre.ifModifiedSinceVersion !== undefined) {
+      if (res.version <= request.pre.ifModifiedSinceVersion) {
         response = new Hapi.Response.Raw(request).code(304);
         return request.reply(response);
       }
@@ -195,11 +185,6 @@ function setItems(request) {
   var userid = request.params.userid;
   var collection = request.params.collection;
 
-  var if_ver = request.raw.req.headers['x-if-unmodified-since-version'];
-  if (if_ver) {
-    if_ver = parseInt(if_ver, 10);
-  }
-
   // Convert the incoming list of items into a hash mapping
   // item ids to item bodies.  Should we just change the API
   // to input such a hash?
@@ -218,6 +203,7 @@ function setItems(request) {
   // The syncstore concurrency model means that writes might temporarily
   // fail due to other writes happening at the same time.  We use a little
   // retry loop to make several attempts before erroring out.
+  var if_ver = request.pre.ifUnmodifiedSinceVersion;
   var numRetries = 0;
   function doSetItems() {
     store.setItems(userid, collection, items, if_ver, function(err, res) {
