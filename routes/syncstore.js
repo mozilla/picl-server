@@ -80,6 +80,15 @@ exports.routes = [
         }
       }
     }
+  },
+  {
+    method: 'DELETE',
+    path: '/{userid}',
+    handler: deleteUserData,
+    config: {
+      description: 'Delete all data for the user',
+      pre: [prereqs.checkUserId]
+    }
   }
 ];
 
@@ -226,4 +235,17 @@ function setItems(request) {
     });
   }
   doSetItems();
+}
+
+
+//  Handler function for deleting all of the user's data.
+//
+function deleteUserData(request) {
+  var userid = request.params.userid;
+
+  store.deleteUserData(userid, function(err) {
+    if (err) return request.reply(Hapi.Error.internal(err));
+    var response = new Hapi.Response.Raw(request).code(204);
+    return request.reply(response);
+  });
 }
