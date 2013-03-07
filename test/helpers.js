@@ -1,5 +1,6 @@
 const request = require('request');
 const crypto = require('crypto');
+const Hapi = require('hapi');
 
 exports.server = require('../server');
 
@@ -12,21 +13,40 @@ exports.uniqueID = function() {
 };
 
 
-// Construct a request-making function bound either to a local Hapi server
-// instance, or a remote server.
+// Construct a request-making object that can talk to either a local Hapi
+// server instance, or a live remote server.
 //
-// Individual testcases can call this function to generate a makeRequest()
-// helper that's bound to their specific server of interest.  Said function
-// will also respect the TEST_REMOTE environment variable to redirect requests
-// against a remote server.
+// Individual testcases can instantiate this object with their specific server
+// of interest, and call its makeRequest() method to send simulated HTTP
+// requests into the server.  If the TEST_REMOTE environment variable is set
+// then these requests will be transparently redirected to a live server.
 //
-// XXX TODO: there must be a better name for this function...?
-//
-exports.bindMakeRequest = function(server) {
-  if (process.env.TEST_REMOTE) {
-    return exports.makeLiveRequest.bind({base_url: process.env.TEST_REMOTE});
+function TestClient(options) {
+  options = options || {};
+  this.server = options.server || exports.server;
+  this.remoteURL = options.remoteURL || process.env.TEST_REMOTE;
+  this.basePath = options.basePath || '';
+  this.defaultHeaders = options.defaultHeaders || {};
+}
+
+exports.TestClient = TestClient;
+
+TestClient.prototype.makeRequest = function(method, path, opts, cb) {
+  if (typeof opts === 'function') {
+    cb = opts;
+    opts = {};
+  }
+
+  // Normalize the request information using defaults.
+  path = this.basePath + path;
+  opts.headers = Hapi.Utils.applyToDefaults(this.defaultHeaders,
+                                            opts.headers || {});
+
+  // Send it via http or inject, as determined by the test environment.
+  if (this.remoteURL) {
+    return this._makeRequestViaHTTP(method, path, opts, cb);
   } else {
-    return exports.makeInjectRequest.bind(server);
+    return this._makeRequestViaInject(method, path, opts, cb);
   }
 };
 
@@ -35,12 +55,7 @@ exports.bindMakeRequest = function(server) {
 // This bypasses all networking and node layers and just exercises the
 // application code, making it faster and better for debugging.
 //
-exports.makeInjectRequest = function (method, path, options, callback) {
-  if (typeof options === 'function') {
-    callback = options;
-    options = {};
-  }
-
+TestClient.prototype._makeRequestViaInject = function(method, path, opts, cb) {
   var next = function (res) {
     // nodejs lowercases response headers, so simulate that behaviour here.
     var normalizedHeaders = {};
@@ -50,11 +65,11 @@ exports.makeInjectRequest = function (method, path, options, callback) {
       }
     }
     res.headers = normalizedHeaders;
-    return callback(res);
+    return cb(res);
   };
 
   // nodejs lowercases request headers, so simulate that behaviour here.
-  var rawHeaders = options.headers || {};
+  var rawHeaders = opts.headers || {};
   var headers = {};
   for (var key in rawHeaders) {
     if (rawHeaders.hasOwnProperty(key)) {
@@ -62,44 +77,39 @@ exports.makeInjectRequest = function (method, path, options, callback) {
     }
   }
 
-  this.inject({
+  this.server.inject({
     method: method,
     url: path,
-    payload: JSON.stringify(options.payload),
+    payload: JSON.stringify(opts.payload),
     headers: headers
   }, next);
 };
 
 
 // Make a HTTP request by actually sending it out over the network.
-// This uses the same API as makeInjectRequest above, but sends it to
+// This uses the same API as makeRequestViaInject above, but sends it to
 // a live server.  This lets you easily re-use unittests to acceptance
 // test a live server.
 //
-exports.makeLiveRequest = function (method, path, options, callback) {
-  if (typeof options === 'function') {
-    callback = options;
-    options = {};
-  }
-
+TestClient.prototype._makeRequestViaHTTP = function(method, path, opts, cb) {
   var body = "";
-  if (options.payload !== undefined) {
-    body = JSON.stringify(options.payload);
+  if (opts.payload !== undefined) {
+    body = JSON.stringify(opts.payload);
   }
 
   request({
-    url: this.base_url + path,
+    url: this.remoteURL + path,
     method: method,
-    headers: options.headers || {},
+    headers: opts.headers || {},
     body: body
   }, function (err, res, body) {
-    if (err) return callback({statusCode: 599, error: err});
+    if (err) return cb({statusCode: 599, error: err});
     if (body && res.headers['content-type'] === 'application/json') {
       res.result = JSON.parse(body);
     } else {
       res.result = body;
     }
-    return callback(res);
+    return cb(res);
   });
 };
 

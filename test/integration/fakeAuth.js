@@ -1,8 +1,7 @@
 var assert = require('assert');
 var helpers = require('../helpers');
 
-var server = helpers.server;
-var makeRequest = helpers.bindMakeRequest(server);
+var testClient = new helpers.TestClient();
 
 var TEST_EMAIL = helpers.uniqueID() + '@example.com';
 var TEST_TOKEN = helpers.uniqueID();
@@ -11,7 +10,7 @@ var TEST_NEWER_TOKEN = helpers.uniqueID();
 
 describe('fake auth', function() {
   it('creates a new account', function(done) {
-    makeRequest('PUT', '/update_token', {
+    testClient.makeRequest('PUT', '/update_token', {
       payload: { email: TEST_EMAIL, token: TEST_TOKEN, oldTokens: [ 'not', 'used' ] }
     }, function(res) {
       assert.equal(res.statusCode, 200);
@@ -21,7 +20,7 @@ describe('fake auth', function() {
   });
 
   it('fails to update new token when old token is invalid', function(done) {
-    makeRequest('PUT', '/update_token', {
+    testClient.makeRequest('PUT', '/update_token', {
       payload: { email: TEST_EMAIL, token: TEST_NEW_TOKEN, oldTokens: [ 'bad' ] }
     }, function(res) {
       assert.equal(res.statusCode, 401);
@@ -31,7 +30,7 @@ describe('fake auth', function() {
   });
 
   it('updates new token when an old token is valid', function(done) {
-    makeRequest('PUT', '/update_token', {
+    testClient.makeRequest('PUT', '/update_token', {
       payload: { email: TEST_EMAIL, token: TEST_NEW_TOKEN, oldTokens: [ 'bad', TEST_TOKEN ] }
     }, function(res) {
       assert.equal(res.statusCode, 200);
@@ -41,7 +40,7 @@ describe('fake auth', function() {
   });
 
   it('succeeds using the current token', function(done) {
-    makeRequest('PUT', '/update_token', {
+    testClient.makeRequest('PUT', '/update_token', {
       payload: { email: TEST_EMAIL, token: TEST_NEW_TOKEN }
     }, function(res) {
       assert.equal(res.statusCode, 200);
@@ -51,7 +50,7 @@ describe('fake auth', function() {
   });
 
   it('deletes the account', function(done) {
-    makeRequest('DELETE', '/account', {
+    testClient.makeRequest('DELETE', '/account', {
       payload: { email: TEST_EMAIL }
     }, function(res) {
       assert.equal(res.statusCode, 200);
@@ -61,7 +60,7 @@ describe('fake auth', function() {
   });
 
   it('creates a new account with a new token', function(done) {
-    makeRequest('PUT', '/update_token', {
+    testClient.makeRequest('PUT', '/update_token', {
       payload: { email: TEST_EMAIL, token: TEST_NEWER_TOKEN }
     }, function(res) {
       assert.equal(res.statusCode, 200);

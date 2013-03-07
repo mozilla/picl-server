@@ -7,24 +7,11 @@ const TEST_TOKEN = 'faketoken';
 
 describe('syncstore web api', function() {
 
-  var origMakeRequest = helpers.bindMakeRequest(server);
-
-  // Request helper that automatically prepands endpoint to the url
-  // and adds authorization headers.
-  function makeRequest(method, url, options, cb) {
-    url = '/' + TEST_TOKEN + url;
-    if (typeof options === 'function') {
-      cb = options;
-      options = {};
-    }
-    if (!options.headers) {
-      options.headers = {};
-    }
-    if (!options.headers.Authorization) {
-      options.headers.Authorization = TEST_TOKEN;
-    }
-    return origMakeRequest(method, url, options, cb);
-  }
+  // Test client that includes auth information by default.
+  var testClient = new helpers.TestClient({
+    basePath: '/' + TEST_TOKEN,
+    defaultHeaders: { Authorization: TEST_TOKEN },
+  });
 
   // Map a list of BSOs into an object keyed by item id.
   function collectBSOs(itemList) {
@@ -36,11 +23,11 @@ describe('syncstore web api', function() {
   }
 
   it('allows basic writing and reading of a BSO', function(done) {
-    makeRequest('POST', '/storage/col1', {
+    testClient.makeRequest('POST', '/storage/col1', {
       payload: [{ id: 'one', payload: 'TESTONE' }],
     }, function(res) {
       assert.equal(res.statusCode, 200);
-      makeRequest('GET', '/storage/col1', function(res) {
+      testClient.makeRequest('GET', '/storage/col1', function(res) {
         assert.equal(res.statusCode, 200);
         assert.ok(res.result.version > 0);
         var items = collectBSOs(res.result.items);
@@ -51,12 +38,12 @@ describe('syncstore web api', function() {
   });
 
   it('allows writing several items at once', function(done) {
-    makeRequest('POST', '/storage/col1', {
+    testClient.makeRequest('POST', '/storage/col1', {
       payload: [{ id: 'two', payload: 'TESTTWO' },
                 { id: 'three', payload: 'TESTTHREE' }],
     }, function(res) {
       assert.equal(res.statusCode, 200);
-      makeRequest('GET', '/storage/col1', function(res) {
+      testClient.makeRequest('GET', '/storage/col1', function(res) {
         assert.equal(res.statusCode, 200);
         assert.ok(res.result.version > 0);
         var items = collectBSOs(res.result.items);
@@ -71,15 +58,15 @@ describe('syncstore web api', function() {
   });
 
   it('reflects version changes in the info document', function(done) {
-    makeRequest('GET', '/info/collections', function(res) {
+    testClient.makeRequest('GET', '/info/collections', function(res) {
       assert.equal(res.statusCode, 200);
       var info1 = res.result;
       assert.deepEqual(Object.keys(info1.collections).sort(), ['col1']);
-      makeRequest('POST', '/storage/col2', {
+      testClient.makeRequest('POST', '/storage/col2', {
         payload: [{ id: 'tester' }],
       }, function(res) {
         assert.equal(res.statusCode, 200);
-        makeRequest('GET', '/info/collections', function(res) {
+        testClient.makeRequest('GET', '/info/collections', function(res) {
           assert.equal(res.statusCode, 200);
           var info2 = res.result;
           assert.deepEqual(Object.keys(info2.collections).sort(),
@@ -94,7 +81,7 @@ describe('syncstore web api', function() {
   });
 
   it('can filter BSOs by id', function(done) {
-    makeRequest('GET', '/storage/col1?ids=one,three', function(res) {
+    testClient.makeRequest('GET', '/storage/col1?ids=one,three', function(res) {
       assert.equal(res.statusCode, 200);
       var items = collectBSOs(res.result.items);
       assert.deepEqual(Object.keys(items).sort(), ['one', 'three']);
@@ -103,17 +90,17 @@ describe('syncstore web api', function() {
   });
 
   it('can filter BSOs by last-modified version', function(done) {
-    makeRequest('GET', '/storage/col1?newer=0', function(res) {
+    testClient.makeRequest('GET', '/storage/col1?newer=0', function(res) {
       assert.equal(res.statusCode, 200);
       var items = collectBSOs(res.result.items);
       assert.deepEqual(Object.keys(items).sort(), ['one', 'three', 'two']);
       var v = items.one.version;
-      makeRequest('GET', '/storage/col1?newer='+v, function(res) {
+      testClient.makeRequest('GET', '/storage/col1?newer='+v, function(res) {
         assert.equal(res.statusCode, 200);
         var items = collectBSOs(res.result.items);
         assert.deepEqual(Object.keys(items).sort(), ['three', 'two']);
         var v = items.two.version;
-        makeRequest('GET', '/storage/col1?newer='+v, function(res) {
+        testClient.makeRequest('GET', '/storage/col1?newer='+v, function(res) {
           assert.equal(res.statusCode, 200);
           var items = collectBSOs(res.result.items);
           assert.deepEqual(Object.keys(items).sort(), []);
@@ -124,7 +111,7 @@ describe('syncstore web api', function() {
   });
 
   it('sends a last-modified header with GET responses', function(done) {
-    makeRequest('GET', '/storage/col1', function(res) {
+    testClient.makeRequest('GET', '/storage/col1', function(res) {
       assert.equal(res.statusCode, 200);
       assert.equal(res.result.version, res.headers['x-last-modified-version']);
       done();
@@ -132,20 +119,20 @@ describe('syncstore web api', function() {
   });
 
   it('supports 304-Not-Modified for info and collections', function(done) {
-    makeRequest('GET', '/info/collections', function(res) {
+    testClient.makeRequest('GET', '/info/collections', function(res) {
       assert.equal(res.statusCode, 200);
       var info = res.result;
       var opts = {
         headers: { 'X-If-Modified-Since-Version': ''+info.version }
       };
-      makeRequest('GET', '/info/collections', opts, function(res) {
+      testClient.makeRequest('GET', '/info/collections', opts, function(res) {
         assert.equal(res.statusCode, 304);
         var col1Version = info.collections.col1;
         opts.headers['X-If-Modified-Since-Version'] = ''+col1Version;
-        makeRequest('GET', '/storage/col1', opts, function(res) {
+        testClient.makeRequest('GET', '/storage/col1', opts, function(res) {
           assert.equal(res.statusCode, 304);
           opts.headers['X-If-Modified-Since-Version'] = ''+(col1Version - 1);
-          makeRequest('GET', '/storage/col1', opts, function(res) {
+          testClient.makeRequest('GET', '/storage/col1', opts, function(res) {
             assert.equal(res.statusCode, 200);
             done();
           });
@@ -155,14 +142,14 @@ describe('syncstore web api', function() {
   });
 
   it('supports 412-Precondition-Failed for writes', function(done) {
-    makeRequest('GET', '/info/collections', function(res) {
+    testClient.makeRequest('GET', '/info/collections', function(res) {
       assert.equal(res.statusCode, 200);
       var col1Version = res.result.collections.col1;
       var opts = {
         payload: [{ id: 'five' }],
         headers: { 'X-If-Unmodified-Since-Version': ''+(col1Version - 1) }
       };
-      makeRequest('POST', '/storage/col1', opts, function(res) {
+      testClient.makeRequest('POST', '/storage/col1', opts, function(res) {
         assert.equal(res.statusCode, 412);
         done();
       });
@@ -170,11 +157,11 @@ describe('syncstore web api', function() {
   });
 
   it('prevents other users from accessing my data', function(done) {
-    makeRequest('GET', '/info/collections', {
+    testClient.makeRequest('GET', '/info/collections', {
       headers: { Authorization: TEST_TOKEN + "BAD" }
     }, function(res) {
       assert.equal(res.statusCode, 401);
-      makeRequest('GET', '/storage/col1', {
+      testClient.makeRequest('GET', '/storage/col1', {
         headers: { Authorization: TEST_TOKEN + "BAD" }
       }, function(res) {
         assert.equal(res.statusCode, 401);
@@ -184,10 +171,11 @@ describe('syncstore web api', function() {
   });
 
   it('errors if client sends a not-yet-used version number', function(done) {
-    makeRequest('GET', '/storage/col1', function(res) {
+    testClient.makeRequest('GET', '/storage/col1', function(res) {
       assert.equal(res.statusCode, 200);
       var newer = res.result.version + 1;
-      makeRequest('GET', '/storage/col1?newer='+newer, function(res) {
+      var path = '/storage/col1?newer=' + newer;
+      testClient.makeRequest('GET', path, function(res) {
         assert.equal(res.statusCode, 400);
         assert.equal(res.result.message, 'unseen version number');
         done();
@@ -196,9 +184,9 @@ describe('syncstore web api', function() {
   });
 
   it('lets me delete all of my data', function(done) {
-    makeRequest('DELETE', '', function(res) {
+    testClient.makeRequest('DELETE', '', function(res) {
       assert.equal(res.statusCode, 204);
-      makeRequest('GET', '/info/collections', function(res) {
+      testClient.makeRequest('GET', '/info/collections', function(res) {
         assert.equal(res.statusCode, 200);
         assert.equal(res.result.version, 0);
         done();

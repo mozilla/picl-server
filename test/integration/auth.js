@@ -2,8 +2,7 @@ var assert = require('assert');
 var config = require('../../lib/config');
 var helpers = require('../helpers');
 
-var server = helpers.server;
-var makeRequest = helpers.bindMakeRequest(server);
+var testClient = new helpers.TestClient();
 
 var TEST_AUDIENCE = config.get('public_url');
 var TEST_EMAIL;
@@ -29,7 +28,7 @@ describe('get user', function() {
 
 describe('auth', function() {
   it('creates a new account', function(done) {
-    makeRequest('PUT', '/update_token', {
+    testClient.makeRequest('PUT', '/update_token', {
       payload: { assertion: TEST_ASSERTION, token: TEST_TOKEN, oldTokens: [ 'not', 'used' ] }
     }, function(res) {
       assert.equal(res.statusCode, 200);
@@ -39,7 +38,7 @@ describe('auth', function() {
   });
 
   it('fails to update new token when old token is invalid', function(done) {
-    makeRequest('PUT', '/update_token', {
+    testClient.makeRequest('PUT', '/update_token', {
       payload: { assertion: TEST_ASSERTION, token: TEST_NEW_TOKEN, oldTokens: [ 'bad' ] }
     }, function(res) {
       assert.equal(res.statusCode, 401);
@@ -49,7 +48,7 @@ describe('auth', function() {
   });
 
   it('updates new token when an old token is valid', function(done) {
-    makeRequest('PUT', '/update_token', {
+    testClient.makeRequest('PUT', '/update_token', {
       payload: { assertion: TEST_ASSERTION, token: TEST_NEW_TOKEN, oldTokens: [ 'bad', TEST_TOKEN ] }
     }, function(res) {
       assert.equal(res.statusCode, 200);
@@ -59,7 +58,7 @@ describe('auth', function() {
   });
 
   it('succeeds using the current token', function(done) {
-    makeRequest('PUT', '/update_token', {
+    testClient.makeRequest('PUT', '/update_token', {
       payload: { assertion: TEST_ASSERTION, token: TEST_NEW_TOKEN }
     }, function(res) {
       assert.equal(res.statusCode, 200);
@@ -69,7 +68,7 @@ describe('auth', function() {
   });
 
   it('deletes the account', function(done) {
-    makeRequest('DELETE', '/account', {
+    testClient.makeRequest('DELETE', '/account', {
       payload: { assertion: TEST_ASSERTION }
     }, function(res) {
       assert.equal(res.statusCode, 200);
@@ -79,7 +78,7 @@ describe('auth', function() {
   });
 
   it('creates a new account with a new token', function(done) {
-    makeRequest('PUT', '/update_token', {
+    testClient.makeRequest('PUT', '/update_token', {
       payload: { assertion: TEST_ASSERTION, token: TEST_NEWER_TOKEN }
     }, function(res) {
       assert.equal(res.statusCode, 200);

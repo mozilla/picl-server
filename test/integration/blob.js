@@ -1,15 +1,14 @@
 var assert = require('assert');
 var helpers = require('../helpers');
 
-var server = helpers.server;
-var makeRequest = helpers.bindMakeRequest(server);
+var testClient = new helpers.TestClient();
 
 var TEST_EMAIL = helpers.uniqueID() + '@example.com';
 var TEST_TOKEN = helpers.uniqueID();
 
 describe('set up account', function() {
   it('creates a new account', function(done) {
-    makeRequest('PUT', '/update_token', {
+    testClient.makeRequest('PUT', '/update_token', {
       payload: { email: TEST_EMAIL, token: TEST_TOKEN, oldTokens: [ 'not', 'used' ] }
     }, function(res) {
       assert.equal(res.statusCode, 200);
@@ -21,7 +20,7 @@ describe('set up account', function() {
 
 describe('blob', function() {
   it('should store a blob', function(done) {
-    makeRequest('PUT', '/blob', {
+    testClient.makeRequest('PUT', '/blob', {
       payload: { data: 'my awesome data', casid: 1 },
       headers: { Authorization: TEST_TOKEN }
     }, function(res) {
@@ -32,7 +31,7 @@ describe('blob', function() {
   });
 
   it('should get a blob', function(done) {
-    makeRequest('GET', '/blob', {
+    testClient.makeRequest('GET', '/blob', {
       headers: { Authorization: TEST_TOKEN }
     }, function(res) {
       assert.equal(res.statusCode, 200);
@@ -46,7 +45,7 @@ describe('blob', function() {
   // XXX TODO: re-enable this as security model grows.
   //
   //it('should fail on bad Authorization header', function(done) {
-  //  makeRequest('GET', '/blob', {
+  //  testClient.makeRequest('GET', '/blob', {
   //    headers: { Authorization: 'bad' }
   //  }, function(res) {
   //    assert.equal(res.statusCode, 401);
