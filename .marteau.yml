@@ -1,0 +1,8 @@
+name: PICL-Server
+wdir: loadtest
+script: stress.py
+test: StressTest.test_hello_world
+nodes: 1
+email: rfkelly@mozilla.com
+cycles: '10:20:30'
+duration: 10
