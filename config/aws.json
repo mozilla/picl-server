@@ -1,5 +1,6 @@
 {
   "kvstore": {
-    "backend": "couchbase"
+    "backend": "couchbase",
+    "debug": true
   }
 }
