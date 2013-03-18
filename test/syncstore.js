@@ -141,4 +141,10 @@ describe('syncstore', function () {
     });
   });
 
+  it('can delete user data', function (done) {
+    store.deleteUserData(TEST_USERID, function(err) {
+      assert.equal(err, null);
+      done();
+    });
+  });
 });
