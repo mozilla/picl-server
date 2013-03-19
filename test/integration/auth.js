@@ -4,7 +4,7 @@ var helpers = require('../helpers');
 
 var testClient = new helpers.TestClient();
 
-var TEST_AUDIENCE = config.get('public_url');
+var TEST_AUDIENCE = process.env.TEST_REMOTE || config.get('public_url');
 var TEST_EMAIL;
 var TEST_ASSERTION;
 var TEST_TOKEN = helpers.uniqueID();

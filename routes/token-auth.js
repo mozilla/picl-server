@@ -116,7 +116,7 @@ function updateToken(request) {
     if (err) {
 
       // assume audience is the current datatype server
-      var audience = request.server.settings.uri;
+      var audience = config.get('public_url');
 
       // verify the assertion on a hosted verifier
       fakeVerify(request.payload.email, request.payload.assertion, audience, VERIFIER_URL,
