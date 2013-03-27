@@ -8,6 +8,7 @@ var authConfig = require('./routes/token-auth.js').config;
 
 // server settings
 var settings = {
+  monitor: true,
   auth: authConfig
 };
 
