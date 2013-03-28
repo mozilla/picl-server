@@ -1,0 +1,12 @@
+{
+  "Type" : "AWS::RDS::DBInstance",
+  "Properties" : {
+    "DBName": "picl",
+    "Engine": "MySQL",
+    "MasterUsername": "picl",
+    "MasterUserPassword": "piclmesoftly",
+    "DBInstanceClass": "db.m1.small",
+    "DBSecurityGroups": [ {"Ref": "DatabaseSecurityGroup"} ],
+    "AllocatedStorage": "5"
+  }
+}

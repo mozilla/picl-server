@@ -7,3 +7,5 @@ loadtest/lib/
 loadtest/local/
 /loadtest/loadtest.*
 *.swp
+*.pyc
+*.pyo

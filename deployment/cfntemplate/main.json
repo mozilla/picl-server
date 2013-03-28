@@ -1,0 +1,12 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  
+  "Description" : "AWS CloudFormation Template for PiCL Server Deployment",
+  
+  "Outputs" : {
+    "ServerURL" : {
+      "Value" : { "Fn::Join" : ["", ["http://", { "Fn::GetAtt" : [ "LoadBalancer", "DNSName" ]}]] },
+      "Description" : "URL for PiCL Server"
+    }
+  }
+}

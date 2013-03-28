@@ -1,0 +1,9 @@
+{
+  "Type" : "AWS::EC2::Instance",
+  "Properties" : {
+    "InstanceType" : "m1.small",
+    "ImageId": "ami-1624987f",
+    "KeyName": "awsbox deploy key (454b633b63f3ca222c7c1ad67c21bc52)",
+    "SecurityGroups": [ {"Ref": "WebServerSecurityGroup"} ]
+  }
+}

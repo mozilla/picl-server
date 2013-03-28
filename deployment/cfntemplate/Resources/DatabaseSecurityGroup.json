@@ -1,0 +1,7 @@
+{
+  "Type": "AWS::RDS::DBSecurityGroup",
+  "Properties": {
+    "DBSecurityGroupIngress": { "EC2SecurityGroupName": { "Ref": "WebServerSecurityGroup"} },
+    "GroupDescription"      : "Frontend Access"
+  }        
+}    
