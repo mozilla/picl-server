@@ -37,4 +37,20 @@ describe('kvstore', function () {
     });
   });
 
+  it('cleans up', function(done) {
+    cleanUp(function(err) {
+      assert.equal(err, null);
+      done();
+    });
+  });
+
 });
+
+function cleanUp(cb) {
+  if (config.get('kvstore.backend') === 'mysql') {
+    var mysql = require('../lib/kvstore/mysql.js');
+    mysql.closeAndRemove(cb);
+  } else {
+    cb(null);
+  }
+}
