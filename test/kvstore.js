@@ -25,7 +25,7 @@ describe('kvstore', function () {
         db.cas("test-key", "OTHER-VALUE-ONE", info.casid, function(err) {
           assert.equal(err, null);
           db.cas("test-key", "OTHER-VALUE-TWO", info.casid, function(err) {
-            assert.notEqual(err, null);
+            assert.equal(err, kvstore.ERROR_CAS_MISMATCH);
             db.get("test-key", function(err, info) {
               assert.equal(err, null);
               assert.equal(info.value, "OTHER-VALUE-ONE");
@@ -37,4 +37,20 @@ describe('kvstore', function () {
     });
   });
 
+  it('cleans up', function(done) {
+    cleanUp(function(err) {
+      assert.equal(err, null);
+      done();
+    });
+  });
+
 });
+
+function cleanUp(cb) {
+  if (config.get('kvstore.backend') === 'mysql') {
+    var mysql = require('../lib/kvstore/mysql.js');
+    mysql.closeAndRemove(cb);
+  } else {
+    cb(null);
+  }
+}
