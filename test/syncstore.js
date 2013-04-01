@@ -8,7 +8,12 @@ const TEST_COL2 = 'collection2';
 
 describe('syncstore', function () {
 
-  var store = syncstore.connect(config.get('kvstore'));
+  var store;
+
+  it('should connect', function (done) {
+    store = syncstore.connect(config.get('kvstore'));
+    done();
+  });
 
   it('starts off with no collections', function (done) {
     store.getCollections(TEST_USERID, function(err, info) {
