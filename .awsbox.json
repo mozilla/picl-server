@@ -4,5 +4,8 @@
   ],
   "env": {
     "CONFIG_FILES": "$HOME/code/config/aws.json,$HOME/kvstore.json,$HOME/config.json"
+  },
+  "remote_hooks": {
+    "postcreate": "scripts/aws/post_create.sh"
   }
 }
