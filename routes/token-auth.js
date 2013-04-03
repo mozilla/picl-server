@@ -158,7 +158,7 @@ function deleteAccount(request) {
   var assertion = request.payload.assertion;
 
   // assume audience is the current datatype server
-  var audience = request.server.settings.uri;
+  var audience = config.get('public_url');
 
   fakeVerify(request.payload.email, assertion, audience, VERIFIER_URL,
     function(err, result) {

@@ -1,6 +1,7 @@
 const request = require('request');
 const crypto = require('crypto');
 const Hapi = require('hapi');
+const config = require('../lib/config');
 
 exports.server = require('../server');
 
@@ -118,7 +119,9 @@ TestClient.prototype._makeRequestViaHTTP = function(method, path, opts, cb) {
 //
 exports.getUser = function(audience, cb) {
   var url = 'http://personatestuser.org/email_with_assertion/';
-  url += encodeURIComponent(audience) + '/prod',
+  url += encodeURIComponent(audience) + '/custom?browserid=' +
+      encodeURIComponent(config.get('persona_url')) +
+      '&verifier=' + encodeURIComponent(config.get('verifier_url'));
   request.get(url, function(err, res, body) {
     if (err) {
       console.log('get user error:', err);
