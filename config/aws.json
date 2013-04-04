@@ -1,5 +1,8 @@
 {
   "kvstore": {
-    "backend": "memory"
+    "backend": "mysql"
+  },
+  "mysql": {
+    "user": "picl"
   }
 }
