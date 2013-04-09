@@ -21,7 +21,6 @@ const path = require('path');
 const async = require('async');
 const assert = require('assert');
 const child_process = require('child_process');
-const couchbaseInstaller = require('../scripts/aws/install_couchbase.js');
 
 // The SHA1 of the current git commit is used throughout for naming purposes.
 var currentCommit = null;
@@ -79,16 +78,11 @@ function(cb) {
     serverDNSName = output.match(/"dnsName": "([a-z0-9\-\.]+)",/)[1];
     if (!serverInstanceId || !serverDNSName) return cb('awsbox failure');
 
-    // install couchbase
-    couchbaseInstaller(serverDNSName, function(err) {
-      if (err) return cb(err);
-
-      // Push the current commit up to the awsbox.
-      var p = child_process.spawn('git', ['push', serverName, 'HEAD:master'],
-                                  {'stdio': 'inherit'});
-      p.on('exit', function(code, signal) {
-        cb(code || signal);
-      });
+    // Push the current commit up to the awsbox.
+    var p = child_process.spawn('git', ['push', serverName, 'HEAD:master'],
+                                {'stdio': 'inherit'});
+    p.on('exit', function(code, signal) {
+      cb(code || signal);
     });
   });
 },
