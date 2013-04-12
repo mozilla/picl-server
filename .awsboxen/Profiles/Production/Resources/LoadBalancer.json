@@ -2,13 +2,14 @@
   "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
   "Properties" : {
     "AvailabilityZones" : { "Fn::GetAZs" : "" },
+    "Instances" : [{ "Ref": "WebServer" }],
     "Listeners" : [ {
       "LoadBalancerPort" : "80",
       "InstancePort" : "80",
       "Protocol" : "HTTP"
     } ],
     "HealthCheck" : {
-      "Target" : "HTTP:80/__heartbeat__",
+      "Target" : "HTTP:80/",
       "HealthyThreshold" : "2",
       "UnhealthyThreshold" : "5",
       "Interval" : "10",
