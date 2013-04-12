@@ -1,5 +1,9 @@
 /node_modules
 /loadtest/*.pyc
 /loadtest/report
+loadtest/bin/
+loadtest/include/
+loadtest/lib/
+loadtest/local/
 /loadtest/loadtest.*
 *.swp
