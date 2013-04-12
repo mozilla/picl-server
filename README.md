@@ -51,5 +51,5 @@ For something that's closer to what might be seen in production, you can use
 [awsboxen](https://github.com/rfk/awsboxen) to deploy an auto-scaling cluster
 with separate database server.
 
-    $ awsboxen deploy --profile=Production picl-server-test
+    $ awsboxen deploy --profile=MockProduction picl-server-test
 
