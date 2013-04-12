@@ -1,9 +1,0 @@
-{
-  "Type" : "AWS::EC2::Instance",
-  "Properties" : {
-    "InstanceType" : "m1.small",
-    "ImageId": { "Ref": "DefaultBoxAMI" },
-    "KeyName": { "Ref": "AWSBoxDeployKey" },
-    "SecurityGroups": [ {"Ref": "WebServerSecurityGroup"} ]
-  }
-}
