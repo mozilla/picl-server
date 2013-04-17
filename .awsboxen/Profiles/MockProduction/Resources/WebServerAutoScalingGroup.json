@@ -1,0 +1,10 @@
+{
+  "Type" : "AWS::AutoScaling::AutoScalingGroup",
+  "Properties" : {
+    "AvailabilityZones" : { "Fn::GetAZs": ""},
+    "LaunchConfigurationName": { "Ref": "WebServerLaunchConfig" },
+    "MinSize": "2",
+    "MaxSize": "5",
+    "LoadBalancerNames": [ {"Ref": "LoadBalancer" }]
+  }
+}  

@@ -1,0 +1,9 @@
+{
+  "Type": "AWS::RDS::DBSecurityGroup",
+  "Properties": {
+    "GroupDescription": "DB Access from WebServer Instances",
+    "DBSecurityGroupIngress": {
+      "EC2SecurityGroupName": { "Ref": "WebServerSecurityGroup"}
+    }
+  }
+}    

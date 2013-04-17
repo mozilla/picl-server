@@ -37,3 +37,19 @@ By default, all data is stored in memory. To use the mysql backend, set the envi
 Or, to run tests against the mysql backend:
 
     $ KVSTORE_BACKEND=mysql npm test
+
+## Deployment
+
+PiCL is designed for deployment into AWS.
+
+For testing and light-weight deployments you can use [awsbox](https://github.com/mozilla/awsbox) which will create an all-in-one PiCL server instance:
+
+    $ awsbox create -t m1.small -n picl-server-test
+    $ git push picl-server-test HEAD:master
+
+For something that's closer to what might be seen in production, you can use
+[awsboxen](https://github.com/rfk/awsboxen) to deploy an auto-scaling cluster
+with separate database server.
+
+    $ awsboxen deploy --profile=MockProduction picl-server-test
+
