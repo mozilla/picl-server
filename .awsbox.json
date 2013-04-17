@@ -3,7 +3,7 @@
     "index.js"
   ],
   "env": {
-    "CONFIG_FILES": "$HOME/code/config/aws.json,$HOME/config.json"
+    "CONFIG_FILES": "$HOME/code/config/aws.json,$HOME/aws.json,$HOME/config.json"
   },
   "remote_hooks": {
     "postcreate": "scripts/aws/post_create.sh"
