@@ -1,0 +1,26 @@
+{
+  "Type" : "AWS::AutoScaling::LaunchConfiguration",
+  "Properties" : {
+    "InstanceType" : "m1.small",
+    "ImageId": { "Ref": "AWSBoxAMI" },
+    "KeyName": { "Ref": "AWSBoxDeployKey" },
+    "SecurityGroups": [ {"Ref": "WebServerSecurityGroup"} ],
+    "UserData": { "Fn::Base64": { "Fn::Join": [ "\n", [
+        "#!/bin/sh",
+        "set -e -x",
+        "cat << EOF > /home/app/aws.json",
+        "{",
+        "  \"mysql\": {",
+        "    \"user\": \"picl\",",
+        "    \"password\": \"piclmesoftly\",",
+        "    \"host\":",
+        {"Fn::Join": ["", ["\"", {"Fn::GetAtt": ["Database", "Endpoint.Address"]}, "\","]]},
+        "    \"port\":",
+        {"Fn::Join": ["", ["\"", {"Fn::GetAtt": ["Database", "Endpoint.Port"]}, "\""]]},
+        "  }",
+        "}",
+        "EOF",
+        ""
+    ]]}}
+  }
+}

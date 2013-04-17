@@ -1,0 +1,8 @@
+{
+  "PublicURL" : {
+    "Value" : {"Fn::Join" : ["",
+      ["http://", { "Fn::GetAtt" : [ "LoadBalancer", "DNSName" ]}]
+    ]},
+    "Description" : "Public URL for PiCL Server"
+  }
+}
