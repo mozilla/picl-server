@@ -8,7 +8,7 @@
       "Protocol" : "HTTP"
     } ],
     "HealthCheck" : {
-      "Target" : "HTTP:80/",
+      "Target" : "HTTP:80/__heartbeat__",
       "HealthyThreshold" : "2",
       "UnhealthyThreshold" : "5",
       "Interval" : "10",
