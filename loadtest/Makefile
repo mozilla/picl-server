@@ -11,4 +11,4 @@ test:
 
 # run actual funkload bench (called from dist.sh over ssh)
 bench:
-	bin/fl-run-bench stress.py StressTest.test_hello_world
+	bin/fl-run-bench stress.py StressTest.test_syncstore_read_and_write
