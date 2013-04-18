@@ -1,0 +1,37 @@
+{
+  "DNSRecord": {
+    "Type": "AWS::Route53::RecordSet",
+    "Properties": {
+      "Comment": "Latest awsboxen deployment of picl-server",
+      "HostedZoneName": "profileinthecloud.net.",
+      "Name": "loadtest.storage.profileinthecloud.net.",
+      "Type": "CNAME",
+      "TTL": "30",
+      "ResourceRecords": [{"Fn::GetAtt": ["WebServer", "PublicDnsName"]}]
+    }
+  },
+
+  "WebServer": {
+    "Type" : "AWS::EC2::Instance",
+    "Properties" : {
+      "InstanceType" : "m1.small",
+      "ImageId": { "Ref": "AWSBoxAMI" },
+      "KeyName": { "Ref": "AWSBoxDeployKey" },
+      "SecurityGroups": [ {"Ref": "WebServerSecurityGroup"} ]
+    }
+  },
+
+  "WebServerSecurityGroup": {
+    "Type" : "AWS::EC2::SecurityGroup",
+    "Properties" : {
+      "GroupDescription" : "Enable HTTP and SSH access",
+      "SecurityGroupIngress" : [
+        {"IpProtocol" : "tcp",
+         "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0"},
+        {"IpProtocol" : "tcp",
+         "FromPort" : "22", "ToPort" : "22", "CidrIp" : "0.0.0.0/0"}
+      ]
+    }
+  }
+
+}
