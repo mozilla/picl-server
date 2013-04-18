@@ -1,0 +1,6 @@
+{
+  "WebServer": null,
+  "DNSRecord": { "Properties": {
+    "ResourceRecords":  [{"Fn::GetAtt": ["LoadBalancer", "DNSName"]}]
+  }}
+}
