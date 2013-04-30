@@ -7,6 +7,7 @@ notifications:
   email:
     - zcarter@mozilla.com
     - rkelly@mozilla.com
+    - jbonacci@mozilla.com
   irc:
     channels:
       - "irc.mozilla.org#picl"
