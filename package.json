@@ -19,7 +19,8 @@
     "awsbox": "0.4.4",
     "awsboxen": "0.1.0",
     "convict": "0.1.x",
-    "async": "0.2.5"
+    "async": "0.2.5",
+    "request": "2.14.0"
   },
   "optionalDependencies": {
     "mysql": "0.9.5"
@@ -27,6 +28,6 @@
   "devDependencies": {
     "mocha": "1.8.1",
     "jshint": "0.9.1",
-    "request": "2.14.0"
+    "nock": "0.17.x"
   }
 }
