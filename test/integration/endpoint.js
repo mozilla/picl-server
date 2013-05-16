@@ -38,6 +38,9 @@ describe('syncstore web api', function() {
   });
 
   it('sends new version to endpoint after updates', function(done) {
+    // Skip this test for remote servers since we cannot easily
+    // intercept requests to the remote push sever it communicates with
+    if (process.env.TEST_REMOTE) return done();
 
     // set up a mock server at the endpoint url
     // check to make sure it receives a put request with version 1
