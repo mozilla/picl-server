@@ -15,7 +15,6 @@ notifications:
     skip_join: false
 
 env:
-  - KVSTORE_BACKEND=mysql
   - KVSTORE_BACKEND=memory
 
 before_script:
