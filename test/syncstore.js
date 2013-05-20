@@ -12,7 +12,7 @@ describe('syncstore', function () {
 
   it('should connect', function (done) {
     store = syncstore.connect(config.get('syncstore'));
-    store.on('connect', done);
+    store.on('connect', function()  { done(); });
   });
 
   it('starts off with no collections', function (done) {
@@ -112,10 +112,10 @@ describe('syncstore', function () {
     store.getCollections(TEST_USERID, function(err, info) {
       assert.equal(err, null);
       store.setItems(TEST_USERID, TEST_COL1, items, 0, function(err) {
-        assert.equal(err, 'syncstore.versionMismatch');
+        assert.equal(err, syncstore.ERROR_VERSION_MISMATCH);
         var preVer = info.version - 1;
         store.setItems(TEST_USERID, TEST_COL1, items, preVer, function(err) {
-          assert.equal(err, 'syncstore.versionMismatch');
+          assert.equal(err, syncstore.ERROR_VERSION_MISMATCH);
           var ver = info.version;
           store.setItems(TEST_USERID, TEST_COL1, items, ver, function(err) {
             assert.equal(err, null);
