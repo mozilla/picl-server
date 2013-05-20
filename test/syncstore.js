@@ -11,8 +11,8 @@ describe('syncstore', function () {
   var store;
 
   it('should connect', function (done) {
-    store = syncstore.connect(config.get('kvstore'));
-    done();
+    store = syncstore.connect(config.get('syncstore'));
+    store.on('connect', done);
   });
 
   it('starts off with no collections', function (done) {
