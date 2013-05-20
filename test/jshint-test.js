@@ -18,7 +18,7 @@ function findJSFiles(pathName) {
   var jsFiles = [];
   if (fs.statSync(pathName).isDirectory()) {
     fs.readdirSync(pathName).forEach(function(childName) {
-      if(childName !== 'node_modules') {
+      if(childName !== 'node_modules' && childName !== 'loadtest') {
         var childPathName = path.join(pathName, childName);
         jsFiles = jsFiles.concat(findJSFiles(childPathName));
       }
