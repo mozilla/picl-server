@@ -25,6 +25,7 @@ const store = syncstore.connect();
 const MAX_ITEMS_PER_BATCH = 100;
 
 
+exports.store = store;
 exports.routes = [
   {
     method: 'GET',
