@@ -4,7 +4,7 @@
   "description": "common server bits for myfirefox",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=test ./node_modules/.bin/mocha -R spec --recursive --timeout 15000 --ignore-leaks",
+    "test": "NODE_ENV=test ./node_modules/.bin/mocha -R spec --recursive --timeout 15000",
     "start": "NODE_ENV=local node index.js",
     "loadtest": "node loadtest/run.js"
   },
@@ -26,8 +26,8 @@
     "mysql": "0.9.5"
   },
   "devDependencies": {
-    "mocha": "1.8.1",
+    "mocha": "1.9.0",
     "jshint": "0.9.1",
-    "nock": "0.17.x"
+    "nock": "0.18.x"
   }
 }
