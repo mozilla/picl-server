@@ -20,7 +20,8 @@
     "awsboxen": "0.1.0",
     "convict": "0.1.x",
     "async": "0.2.5",
-    "request": "2.14.0"
+    "request": "2.14.0",
+    "kvstore": "0.0.3"
   },
   "optionalDependencies": {
     "mysql": "2.0.0-alpha8",

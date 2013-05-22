@@ -1,10 +1,7 @@
 const Hapi = require('hapi');
 const verify = require('../lib/verify.js');
 const config = require('../lib/config.js');
-const kvstore = require('../lib/kvstore.js');
 const account = require('../lib/account.js');
-
-const kv = kvstore.connect();
 
 const VERIFIER_URL = config.get('verifier_url');
 

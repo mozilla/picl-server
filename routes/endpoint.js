@@ -6,11 +6,10 @@ const Hapi = require('hapi');
 const request = require('request');
 
 const config = require('../lib/config.js');
-const kvstore = require('../lib/kvstore.js');
+const kv = require('../lib/kv.js');
 const prereqs = require('../lib/prereqs.js');
 
 const store = require('./syncstore.js').store;
-const kv = kvstore.connect();
 
 exports.routes = [
   {
