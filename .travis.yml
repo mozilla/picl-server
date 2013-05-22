@@ -15,8 +15,21 @@ notifications:
     skip_join: false
 
 env:
-  - KVSTORE_BACKEND=memory
+  - KVSTORE_BACKEND=memory SYNCSTORE_BACKEND=kvstore
+  - KVSTORE_BACKEND=mysql SYNCSTORE_BACKEND=kvstore
+  - SYNCSTORE_BACKEND=mysql
+  - SYNCSTORE_BACKEND=cassandra
 
-before_script:
-  - "mysql -e 'DROP DATABASE IF EXISTS test;'"
-  - "mysql -e 'CREATE DATABASE test;'" 
+services:
+  - mysql
+  - memcached
+  # travis cassandra doesn't start properly
+  # https://github.com/travis-ci/travis-ci/issues/840
+  #-cassandra
+
+
+# workaround to get cassandra running
+# from https://github.com/travis-ci/travis-ci/issues/1053#issuecomment-16851963
+before_install:
+  - sudo sh -c "echo 'JVM_OPTS=\"\${JVM_OPTS} -Djava.net.preferIPv4Stack=false\"' >> /usr/local/cassandra/conf/cassandra-env.sh"
+  - sudo service cassandra start

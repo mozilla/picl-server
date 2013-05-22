@@ -11,7 +11,7 @@ const PUSH_HOST = 'http://pushserver.org';
 const ENDPOINT_1 = '/notify/testendpoint1';
 const ENDPOINT_2 = '/notify/testendpoint2';
 
-describe('syncstore web api', function() {
+describe('syncstore notifications web api', function() {
 
   // Test client that includes auth information by default.
   var testClient = new helpers.TestClient({
