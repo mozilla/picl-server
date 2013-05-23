@@ -30,13 +30,16 @@ variable to the address of the server you want to test:
     $ npm test
     
 ## Storage Backends
-By default, all data is stored in memory. To use the mysql backend, set the environmental variable `KVSTORE_BACKEND=mysql`. E.g.:
+By default, all data is stored in memory. To use the mysql backend, set the environmental variable `SYNCSTORE_BACKEND=mysql`. E.g.:
 
-    $ KVSTORE_BACKEND=mysql npm start
+    $ SYNCSTORE_BACKEND=mysql npm start
     
 Or, to run tests against the mysql backend:
 
-    $ KVSTORE_BACKEND=mysql npm test
+    $ SYNCSTORE_BACKEND=mysql npm test
+
+You can also set `SYNCSTORE_BACKEND=casandra` to run using cassandra and
+memcached as the storage backend.
 
 ## Deployment
 
