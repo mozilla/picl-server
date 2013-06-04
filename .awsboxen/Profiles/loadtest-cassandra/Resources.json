@@ -1,0 +1,54 @@
+{
+
+  "WebServer": {
+    "Properties": {
+      "InstanceType" : "m1.large",
+      "UserData": { "Fn::Base64": { "Fn::Join": [ "\n", [
+        "#!/bin/sh",
+        "set -e -x",
+        "cat << EOF > /home/app/aws.json",
+        "{",
+        "  \"syncstore\": {",
+        "    \"backend\": \"cassandra\"",
+        "  },",
+        "  \"cassandra\": {",
+        "    \"hosts\":",
+        {"Fn::Join": ["", ["[\"", {"Fn::GetAtt": ["CassandraServer", "PublicDnsName"]}, ":9160\"]"]]},
+        "  },",
+        "  \"memcached\": {",
+        "    \"hosts\":",
+        {"Fn::Join": ["", ["\"", {"Fn::GetAtt": ["CassandraServer", "PublicDnsName"]}, ":11211\""]]},
+        "  }",
+        "}",
+        "EOF",
+        ""
+      ]]}}
+    }
+  },
+
+  "CassandraServer": {
+    "Type" : "AWS::EC2::Instance",
+    "Properties" : {
+      "InstanceType" : "m1.large",
+      "ImageId": { "Ref": "CassandraServerAMI" },
+      "KeyName": { "Ref": "AWSBoxDeployKey" },
+      "SecurityGroups": [ {"Ref": "CassandraServerSecurityGroup"} ]
+    }
+  },
+
+  "CassandraServerSecurityGroup": {
+    "Type" : "AWS::EC2::SecurityGroup",
+    "Properties" : {
+      "GroupDescription" : "Enable Cassandra, Memcached and SSH access",
+      "SecurityGroupIngress" : [
+        {"IpProtocol" : "tcp",
+         "FromPort" : "9160", "ToPort" : "9160", "CidrIp" : "0.0.0.0/0"},
+        {"IpProtocol" : "tcp",
+         "FromPort" : "11211", "ToPort" : "11211", "CidrIp" : "0.0.0.0/0"},
+        {"IpProtocol" : "tcp",
+         "FromPort" : "22", "ToPort" : "22", "CidrIp" : "0.0.0.0/0"}
+      ]
+    }
+  }
+
+}
