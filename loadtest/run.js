@@ -22,6 +22,9 @@ const async = require('async');
 const assert = require('assert');
 const child_process = require('child_process');
 
+const AWSBOX = require.resolve('awsbox/awsbox.js');
+const AWSBOXEN = require.resolve('awsboxen/lib/awsboxen.js');
+
 // The SHA1 of the current git commit is used throughout for naming purposes.
 var currentCommit = null;
 var testName = null;
@@ -64,7 +67,7 @@ function(cb) {
   // Spawn awsboxen as a sub-process.
   // We capture stdout trough a pipe, but also buffer it in
   // memory so that we can grab info out of it.
-  var p = child_process.spawn('awsboxen',
+  var p = child_process.spawn(AWSBOXEN,
                          ['deploy', '-p' + serverStackProfile, serverStackId],
                          {'stdio': [0, 'pipe', 2]});
   p.stdout.on('data', function(d) {
@@ -91,7 +94,7 @@ function(cb) {
   // Spawn awsbox as a sub-process.
   // We capture stdout trough a pipe, but also buffer it in
   // memory so that we can grab info out of it.
-  var p = child_process.spawn('awsbox',
+  var p = child_process.spawn(AWSBOX,
                               ['create', '-n', serverName, '-t', 'm1.large'],
                               {'stdio': [0, 'pipe', 2]});
   p.stdout.on('data', function(d) {
@@ -171,7 +174,7 @@ function(cb) {
     function(cb) {
       if (!clientInstanceId) return cb();
       console.log("cleaning up client VM...");
-      var p = child_process.spawn('awsbox',
+      var p = child_process.spawn(AWSBOX,
                                   ['destroy', testName + '-client'],
                                   {'stdio': 'inherit'});
       p.on('exit', function(code, signal) {
@@ -182,7 +185,7 @@ function(cb) {
     function(cb) {
       if (!serverStackId) return cb();
       console.log("cleaning up server stack...");
-      var p = child_process.spawn('awsboxen',
+      var p = child_process.spawn(AWSBOXEN,
                                   ['teardown', serverStackId],
                                   {'stdio': 'inherit'});
       p.on('exit', function(code, signal) {
