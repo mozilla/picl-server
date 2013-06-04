@@ -6,8 +6,8 @@
 /**
  * Proof-of-concept script for automated running of loadtests in AWS.
  * 
- * Running this script will automatically spin up an AWS VM running the
- * current HEAD version of the code, then throw a bunch of load at it
+ * Running this script will automatically spin up an awsboxen deployment
+ * of the current HEAD version of the code, then throw a bunch of load at it
  * and monitor its performance.  You then get a nice HTML report with
  * graphs and numbers and whatnot.
  *
@@ -26,9 +26,11 @@ const child_process = require('child_process');
 var currentCommit = null;
 var testName = null;
 
-// Details of the server to be tested in AWS.
-var serverInstanceId = null;
-var serverDNSName = null;
+// Details of the server stack to be tested in AWS.
+// XXX TODO: it would be better to read selected profile from cmd line args
+var serverStorageBackend = process.env.SYNCSTORE_BACKEND || 'mysql';
+var serverStackProfile = 'loadtest-' + serverStorageBackend;
+var serverStackId = null;
 
 // Details of the client running the tests in AWS.
 var clientInstanceId = null;
@@ -53,43 +55,30 @@ function(cb) {
   });
 },
 
-// Launch an awsbox running the current version of the application.
+// Deploy an awsboxen stack running the current version of the application.
 //
 function(cb) {
-  console.log('Launching awsbox for server');
-  var serverName = testName + '-server';
+  console.log('Deploying the server stack');
+  serverStackId = testName + '-stack';
   var output = '';
-  // Spawn awsbox as a sub-process.
+  // Spawn awsboxen as a sub-process.
   // We capture stdout trough a pipe, but also buffer it in
   // memory so that we can grab info out of it.
-  var p = child_process.spawn('awsbox', ['create', '-n', serverName, '-t', 'm1.large'],
-                              {'stdio': [0, 'pipe', 2]});
+  var p = child_process.spawn('awsboxen',
+                         ['deploy', '-p' + serverStackProfile, serverStackId],
+                         {'stdio': [0, 'pipe', 2]});
   p.stdout.on('data', function(d) {
     process.stdout.write(d);
     output += d;
   });
   p.on('exit', function(code, signal) {
     var err = code || signal;
-    if (err) return cb(err);
-
-    // Parse out the instance details from the awsbox output.
-    // This is...err...a little suboptimal...
-    serverInstanceId = output.match(/"instanceId": "([a-z0-9\-]+)",/)[1];
-    serverDNSName = output.match(/"dnsName": "([a-z0-9\-\.]+)",/)[1];
-    if (!serverInstanceId || !serverDNSName) return cb('awsbox failure');
-
-    // Push the current commit up to the awsbox.
-    var p = child_process.spawn('git', ['push', serverName, 'HEAD:master'],
-                                {'stdio': 'inherit'});
-    p.on('exit', function(code, signal) {
-      cb(code || signal);
-    });
+    return cb(err);
   });
 },
 
-// Launch a second awsbox to run the loadtest client.
+// Launch an awsbox to run the loadtest client.
 // The whole awsbox setup is overkill for this, but helps get started quickly.
-// XXX TODO: refactor awsbox-spawning code into utility function.
 //
 // We could launch both client and server in parallel, but we'll likely move
 // to something like marteau which maintains a pool of available workers, so
@@ -102,7 +91,8 @@ function(cb) {
   // Spawn awsbox as a sub-process.
   // We capture stdout trough a pipe, but also buffer it in
   // memory so that we can grab info out of it.
-  var p = child_process.spawn('awsbox', ['create', '-n', serverName, '-t', 'm1.large'],
+  var p = child_process.spawn('awsbox',
+                              ['create', '-n', serverName, '-t', 'm1.large'],
                               {'stdio': [0, 'pipe', 2]});
   p.stdout.on('data', function(d) {
     process.stdout.write(d);
@@ -146,13 +136,10 @@ function(cb) {
     // Install dependencies for running funkload.
     doSSH('sudo yum --assumeyes install gnuplot', 'ec2-user'),
     doSSH('sudo easy_install funkload', 'ec2-user'),
-    // Write the target URL into the config file.
-    doSSH('echo "[main]" >> ./code/loadtest/StressTest.conf'),
-    doSSH('echo "url = https://' + serverDNSName + '" >> ./code/loadtest/StressTest.conf'),
     // Check that the tests can successfully run.
     doSSH('cd ./code/loadtest && fl-run-test stress.py'),
     // Run the full bench suite.
-    doSSH('cd ./code/loadtest && fl-run-bench stress.py StressTest.test_hello_world'),
+    doSSH('cd ./code/loadtest && fl-run-bench stress.py StressTest.test_syncstore_read_and_write || true'),
     // Generate the nice report into "report" subdirectory.
     // XXX TODO: funkload is buggy when used with the -r option?
     //doSSH('cd ./code/loadtest && mkdir ./report/ && fl-build-report -r /home/app/code/loadtest/report/' + testName + ' --html loadtest.xml'),
@@ -166,7 +153,6 @@ function(cb) {
       p.on('exit', function(code, signal) {
         console.log('SUCCESS!');
         var reportDir = path.join(__dirname, 'report');
-        console.log('Reports are in ' + reportDir);
         console.log('Reports are in file:///' + reportDir);
         cb(code || signal);
       });
@@ -184,12 +170,24 @@ function(cb) {
     // Tear down the client VM.
     function(cb) {
       if (!clientInstanceId) return cb();
-      child_process.exec('awsbox destroy ' + testName + '-client', cb);
+      console.log("cleaning up client VM...");
+      var p = child_process.spawn('awsbox',
+                                  ['destroy', testName + '-client'],
+                                  {'stdio': 'inherit'});
+      p.on('exit', function(code, signal) {
+        cb(code || signal);
+      });
     },
     // Tear down the server VM.
     function(cb) {
-      if (!serverInstanceId) return cb();
-      child_process.exec('awsbox destroy ' + testName + '-server', cb);
+      if (!serverStackId) return cb();
+      console.log("cleaning up server stack...");
+      var p = child_process.spawn('awsboxen',
+                                  ['teardown', serverStackId],
+                                  {'stdio': 'inherit'});
+      p.on('exit', function(code, signal) {
+        cb(code || signal);
+      });
     },
     // Finalize the process and exit success or failure.
     function(cb) {
