@@ -22,8 +22,17 @@ const async = require('async');
 const assert = require('assert');
 const child_process = require('child_process');
 
+// Use locally-installed versions of awsbox and awsboxen,
+// to ensure we're using the correct versions.
 const AWSBOX = require.resolve('awsbox/awsbox.js');
 const AWSBOXEN = require.resolve('awsboxen/lib/awsboxen.js');
+
+// Check that awsboxen install is fresh enough to validate
+// version requirements in the profile config.
+if (!require('awsboxen').version) {
+  console.log("awsboxen version is too old; please update to latest version");
+  process.exit(1);
+}
 
 // The SHA1 of the current git commit is used throughout for naming purposes.
 var currentCommit = null;
