@@ -20,12 +20,6 @@ class StressTest(FunkLoadTestCase):
         if not self.server_url.endswith("/"):
             self.server_url += "/"
 
-    def test_hello_world(self):
-        self.setOkCodes([200])
-        response = self.get(self.server_url + "/hello")
-        self.assertTrue(response.body != '')
-        self.assertEquals(json.loads(response.body)["greeting"], "it works")
-
     def test_syncstore_read_and_write(self):
         COLLECTIONS = ["history", "bookmarks", "tabs", "passwords"]
         auth_token = uuid.uuid4().hex

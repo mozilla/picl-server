@@ -1,0 +1,18 @@
+{
+  "AWSBox": {
+    "Properties": {
+      "hooks": null,
+      "env": {
+        "SYNCSTORE_BACKEND": "mysql"
+      }
+    }
+  },
+
+  "MysqlServer": {
+    "Type": "AWSBoxen::BuildScript",
+    "Properties": {
+      "BaseAMI": "ami-05355a6c",
+      "BuildScript": "scripts/build_mysql_node.sh"
+    }
+  }
+}

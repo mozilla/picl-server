@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 echo "Setting up mysql"
 
+sudo yum --assumeyes install mysql mysql-server
+
 sudo /sbin/chkconfig mysqld on
 sudo /sbin/service mysqld start
 echo "CREATE USER 'picl'@'localhost';" | mysql -u root
