@@ -17,7 +17,7 @@
     "hapi": "0.14.2",
     "joi": "0.1.1",
     "awsbox": "0.4.5",
-    "awsboxen": "0.1.1",
+    "awsboxen": "0.2.0",
     "convict": "0.1.x",
     "async": "0.2.5",
     "request": "2.14.0"
